@@ -1,0 +1,158 @@
+Let me start by exploring the template repo and your existing workspace in parallel.Now I have a thorough picture of what you're working with. Let me also look at the repo structure more closely to understand what we'd be adapting.Now I have everything I need to give you a well-grounded plan. Let me put together a comprehensive design.Here's a clear picture of how the template maps onto your task, and exactly what you need to change.
+
+---
+
+## How the template fits your problem
+
+The accelerator already does almost everything you need:
+
+| Template concept | Your use case |
+|---|---|
+| **Claim** | A contract proposal package (e.g., Harbor Crossing) |
+| **Multiple uploaded documents per claim** | Proposal + General Conditions + Special Provisions + Addenda |
+| **Schema per document type** | One schema per contract document type (extracts the relevant clauses) |
+| **GapExecutor + YAML DSL** | The 18-criterion checklist evaluation |
+| **SummarizeExecutor** | Cross-package summary of findings |
+| **Confidence scoring + human-in-the-loop** | Exactly what your submission schema calls for |
+
+The template's 3-stage workflow — **DocumentProcess → Summarize → Gap** — maps directly onto your need: extract per-document, then evaluate cross-document against criteria.
+
+---
+
+## What you need to build/change
+
+### 1. Extraction Schemas (one per document type)
+
+Create JSON Schema files for each contract document type. Each schema should extract the clause text the AI needs to compare against the 18 criteria. You need 4–5 schemas:
+
+| Schema | File | Extracts |
+|---|---|---|
+| `ProposalAndGeneralNotices` | `proposal.json` | Bid guaranty %, bond %, non-collusive cert, buy america language, federal-aid indicator, addenda acknowledgment list, contractor reg language, license timing |
+| `GeneralConditions` | `general_conditions.json` | Change order process, oral/written direction language, notification deadlines, audit/retention period, subcontracting %, claims procedure, time extensions, LDs rate, compensation for changes |
+| `SpecialProvisions` | `special_provisions.json` | Project-specific overrides to the above |
+| `Addendum` | `addendum.json` | What numbered provision it modifies + the replacement text |
+| `FHWAAttachment` | `fhwa_attachment.json` | Physical presence indicator, FHWA-1273 form content |
+
+### 2. Gap Analysis YAML DSL
+
+Replace `fnol_gap_rules.dsl.yaml` with a `contract_review_gap_rules.dsl.yaml` that encodes all 18 criteria. Each criterion maps to one or more rules:
+
+```yaml
+dsl_version: 1
+rule_set_id: deldot-contract-review
+version: 1.0.0
+owner: "Contract Review Team"
+description: "18-criterion checklist for DelDOT transportation contract proposals"
+
+document_types:
+  proposal:
+    requirement_type: proposal_and_general_notices
+    schema: ProposalAndGeneralNotices
+  general_conditions:
+    requirement_type: general_conditions
+    schema: GeneralConditions
+  special_provisions:
+    requirement_type: special_provisions
+    schema: SpecialProvisions
+  addendum:
+    requirement_type: addendum
+    schema: Addendum
+  fhwa_attachment:
+    requirement_type: fhwa_attachment
+    schema: FHWAAttachment
+
+inputs:
+  federal_aid:
+    type: boolean_or_unknown
+    meaning: "Whether the project is federally funded under Title 23"
+  buy_america_applicable:
+    type: boolean_or_unknown
+    meaning: "Whether Buy America / BABA is stated as applicable in project metadata"
+  addenda_issued:
+    type: integer
+    meaning: "Number of addenda issued per project metadata"
+  subcontracting_planned:
+    type: boolean_or_unknown
+    meaning: "Whether subcontracting is planned"
+  claim_event:
+    type: boolean_or_unknown
+    meaning: "Whether a claim event scenario applies"
+  delay_event:
+    type: boolean_or_unknown
+    meaning: "Whether a delay event scenario applies"
+  changed_work_event:
+    type: boolean_or_unknown
+    meaning: "Whether a changed-work scenario applies"
+
+discrepancy_checks:
+  # CC-01
+  - id: CC-01-FHWA-PHYSICAL
+    field: fhwa_1273_physical_inclusion
+    sources: [proposal, fhwa_attachment]
+    check_type: conflict
+    severity: critical
+    rationale: "FHWA-1273 must be physically present on federal-aid contracts, not merely referenced."
+
+  # CC-04 Addendum override of bond %
+  - id: CC-04-BOND-ADDENDUM
+    field: performance_payment_bond_pct
+    sources: [proposal, addendum]
+    check_type: conflict
+    severity: high
+    rationale: "Later addendum governs bond coverage; ensure final governing value equals 100%."
+
+  # ... and so on for each criterion
+```
+
+### 3. System prompts
+
+Update the summarize and gap executor prompts to be contract-review aware:
+
+- **`gap_executor_prompt.txt`**: Replace FNOL framing with contract clause review framing. Tell the LLM it is a contract compliance reviewer applying DelDOT/federal-aid standards.
+- **`summarize_executor_prompt.txt`**: Update to produce the exact fields in your `Submission_Schema.csv` columns.
+
+### 4. Submission output formatter
+
+Add a new executor (or post-process step) that takes the gap analysis JSON output and writes it to the `Submission_Schema.csv` format:
+
+```
+document_id, requirement_id, applicability_decision, applicability_reason,
+predicted_label, severity, governing_document, draft_location, draft_evidence,
+reference_id, reference_location, reference_evidence, explanation, confidence,
+recommended_human_action
+```
+
+This can be a fourth stage in the workflow DAG — a `SubmissionFormatterExecutor` — or a Python post-processing script that runs after deployment.
+
+### 5. Project Metadata ingestion
+
+The `Project_Metadata.json` files (federal_aid, buy_america_baba_applicable, issued_addenda, etc.) drive applicability for ~8 of the 18 criteria. You need to:
+- Upload the metadata JSON as one of the claim's input files, or
+- Set the claim's metadata fields at claim-creation time via the API
+
+The cleanest approach: upload `Project_Metadata.json` as an additional document with a `ProjectMetadata` schema that the DSL's `inputs` section reads from.
+
+---
+
+## Recommended implementation order
+
+1. **Deploy the template** to Azure with `azd up` — get the base system running
+2. **Create the 5 extraction schemas** (`proposal.json`, `general_conditions.json`, `special_provisions.json`, `addendum.json`, `fhwa_attachment.json`) and register them
+3. **Write `contract_review_gap_rules.dsl.yaml`** encoding all 18 CC criteria with proper `when:` conditions using project metadata inputs
+4. **Update the gap and summarize prompts** for contract review framing
+5. **Add a submission formatter** to produce the CSV output in the required schema
+6. **Test against the 6 labeled Development packages** — compare output against `Development_Labels.csv`
+
+---
+
+## One important note on the gap executor's scope
+
+The template's GapExecutor handles "is a document missing" and "do fields conflict across documents." Your use case is more nuanced — you need **semantic deviation detection** within a single document against a reference standard. That's closer to what the template calls a discrepancy check, but it compares extracted text against a known reference (e.g., "is the bid guaranty percentage 10%?") rather than across two uploaded documents.
+
+You have two options for this:
+- **Option A (recommended)**: Define your discrepancy checks so the schema extracts the specific value (e.g., `bid_guaranty_pct: "5%"`) and the YAML rule checks `bid_guaranty_pct != "10%"`. The LLM handles the comparison.
+- **Option B**: Add a new `ClauseReviewExecutor` as a custom stage in the DAG that directly evaluates extracted clause text against the reference checklist descriptions using GPT — essentially a second, specialized gap stage. This gives you more control over the 18 specific criteria but requires more Python code.
+
+For your 18 criteria mix (some are document-presence checks like CC-01, some are value checks like CC-02, some are semantic pattern checks like CC-11), Option B is likely the right call — the YAML DSL works well for structural checks but the semantic deviation criteria (CC-10 through CC-18) benefit from a prompt that directly quotes the reference expectation and asks the LLM to compare.
+
+Want me to start building any specific part of this? The most impactful starting point would be the extraction schemas and the gap rules YAML, since those encode all the domain knowledge. I can also draft the `ClauseReviewExecutor` if you want to go that route.
