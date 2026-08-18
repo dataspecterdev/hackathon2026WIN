@@ -1,0 +1,2 @@
+This folder will have the prompts for each of the development case examples, the resulting generated reports, and comparisons with the example outputs.
+  
