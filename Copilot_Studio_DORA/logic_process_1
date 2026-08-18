@@ -1,0 +1,109 @@
+## System Overview
+
+What I built is a **deterministic document-review pipeline** that converts an unstructured contract package into a structured, auditable findings matrix. It has five stages: ingestion → normalization → reference loading → adjudication → emission. The only non-deterministic component is stage 4 (semantic comparison); everything else is reproducible file processing.
+
+---
+
+## Stage 1 — Ingestion and the preprocessing gate
+
+The environment enforces a **per-file preprocessing gate** via a `preToolUse` hook. I cannot `cat`, `grep`, or open an uploaded file directly — the hook intercepts the call and refuses until that specific file has been run through its designated skill preprocessor. This is a correctness control, not just a policy: it guarantees that every fact I assert traces to a machine-extracted artifact rather than to an ad-hoc read that might silently truncate or mis-order content.
+
+Two consequences shaped the run:
+
+1. **Each file requires its own preprocessing invocation.** Nine files (6 package PDFs, 3 reference CSVs) meant nine separate preprocessor runs. There is no batch mode.
+2. **Absolute paths only.** The gate tracks engagement per-file, so `cd` into the uploads directory is blocked — it would break path attribution.
+
+I also had to discover the reference files. They were not in the uploads listing initially; they surfaced only through a knowledge-source search, which downloaded `Submission_Schema.csv`, `Severity_Guidance.csv`, and `Reference_Checklist.csv` into the sandbox.
+
+---
+
+## Stage 2 — Normalization into artifacts
+
+Two different preprocessors, selected by file type:
+
+**PDFs** → `analyzing-pdf/scripts/preprocess.py`. Each run prints an `artifact_dir` — a content-addressed path keyed by the file's SHA-256, e.g.:
+
+```
+/app/workspace/_artifacts/93ca648a693c3842605a63f9cc2d97b9/pdf/2.10
+```
+
+That hash-keyed directory is the critical design element. It means artifacts are **immutable and unambiguous**: the directory for `Proposal_and_General_Notices` cannot collide with the one for `Addendum_B`, and reading a sibling directory would silently answer from the wrong document. The skill explicitly prohibits discovery commands (`find`, `ls`) against the artifact root for exactly this reason — you may only read the path the current invocation printed. I tracked all six PDF artifact directories by hash and read only from the matching one.
+
+Each run emitted a `manifest.json` (page count, warnings, OCR trigger flag, table-truncation flags, figures index) plus `extracted.txt` (page-marked text). All six package PDFs were text-native — `ocr=False`, `warnings=0`, `tables found=0`, no truncation — so `extracted.txt` was fully authoritative and no page rendering was needed. Total corpus was small: 1,848 chars for the proposal, 1,470 for General Conditions, 427 for Special Provisions, and ~350–460 per addendum.
+
+**CSVs** → `analyzing-csv/scripts/preprocess.py`, producing `manifest.json` + `metadata.json` (columns, dtypes, row counts, null counts). Once the gate was satisfied, I read the raw CSVs directly since they were small enough to consume whole.
+
+**JSON metadata** was read as plain text alongside the General Conditions extract — no preprocessor is registered for `.json`.
+
+---
+
+## Stage 3 — Loading the rule base
+
+Three reference files drive everything, and they are deliberately separated by concern:
+
+| File | Role |
+|---|---|
+| `Reference_Checklist.csv` | 18 requirements × 10 columns. The operative columns are `Applicability_Rule`, `Challenge_Reference_Rule` (the scoring benchmark, containing the hard numbers), and `Severity_Guidance` (the default severity ceiling). |
+| `Severity_Guidance.csv` | 5 labels — Critical, High, Medium, Low, Info — each with a `working_definition` and `note`. Every row carries "Challenge severity only; not a legal conclusion." |
+| `Submission_Schema.csv` | 15 output fields with per-field `required` semantics. Three fields are conditionally required: `draft_location`, `draft_evidence`, and `explanation` are "Yes for FLAG; expected for precedence cases." |
+
+The `Challenge_Reference_Rule` column is where the actual thresholds live — 10% bid guaranty, 100% bond coverage, 20 calendar days for execution documents, 7 calendar days for change follow-up, 30/10/20-day license timing, 50% self-performance, three-year retention. I extracted these as the comparison anchors rather than relying on general knowledge of DelDOT specifications.
+
+---
+
+## Stage 4 — The adjudication engine
+
+This is the analytical core, run per requirement as a four-gate cascade. A requirement must pass each gate to reach the next.
+
+**Gate 1 — Applicability.** Test the `Applicability_Rule` against project metadata before looking at any draft text. This gate exists to suppress false positives, and it fired twice: CC-15 (claims) and CC-18 (compensation for changes) were marked `DOES_NOT_APPLY` because `claim_event: No` and `changed_work_event: No`. Absent claim language in a package with no claim scenario is not a finding. Conversely, `delay_event: Yes` forced CC-16 into scope, and `federal_aid: Yes` + `buy_america_baba_applicable: Yes` forced CC-01 and CC-09 into scope.
+
+**Gate 2 — Source pairing.** Bind each requirement to exactly one reference anchor and one draft location. This is what makes the output auditable — every row cites a file, a page, and a heading.
+
+**Gate 3 — Precedence resolution.** Run *before* comparison, not after. This ordering is the most important design decision in the whole pipeline, because running it after comparison produces false flags. Two provisions were superseded:
+
+- **CC-04:** General Conditions p.1 says bond coverage of **75%** "is sufficient" — a deviation on its face. Addendum B carries `REPLACEMENT TEXT` revising that named provision to **100% of the contract price**. Addendum B governs → no flag.
+- **CC-12:** General Conditions p.1 allows written follow-up within **30 calendar days**. Addendum C replaces that named provision, restoring the reference follow-up period against the **7-calendar-day** benchmark. Addendum C governs → no flag.
+
+Both addenda use the explicit marker `Revision to <provision name>` followed by `REPLACEMENT TEXT`, which satisfies the checklist's "later Addendum that explicitly revises a named provision governs that revised provision." Addendum A states it makes no change, so it altered nothing. I recorded the superseded text in `draft_evidence` anyway — the schema treats precedence cases as evidence-expected, and a reviewer needs to see what was cured.
+
+**Gate 4 — Semantic comparison.** Compare *obligations*, not strings: percentages, deadlines, required documents, procedures, applicability rules, protections. Equivalent paraphrase is `Info`, never a flag. The clearest case was CC-13: the draft says "**36 months** following final payment" where the reference says "three years after final payment." Numerically identical, different unit — benign restatement, not a shortened retention period. Similarly CC-02's "bid security" versus the reference's "proposal guaranty," both at 10%.
+
+Severity came from the checklist's per-requirement `Severity_Guidance` value, cross-checked against the definitions in `Severity_Guidance.csv`. I did not invent labels or escalate beyond the guidance.
+
+---
+
+## The four flags, by failure mode
+
+Each flag represents a structurally different defect:
+
+- **CC-01 — omission of a mandatory artifact.** The package self-documents the gap: "No FHWA-1273 attachment is included in this package." Critical, because the checklist states reference-only incorporation is categorically insufficient on a covered federal-aid contract.
+- **CC-09 — internal contradiction.** The operative clause says domestic-content requirements "do not apply," while the project summary on the *same page* says "Buy America/BABA applicable: Yes" and metadata agrees. Critical.
+- **CC-08 — a meta-defect.** "Later issued Addenda may be disregarded" doesn't just violate the currency rule; it attacks the precedence mechanism itself. If honored, it would unwind the CC-04 and CC-12 cures and reinstate the 75% bond figure and the 30-day window. This is why I surfaced the interaction explicitly rather than reporting the three rows independently.
+- **CC-16 — silent removal of prerequisites.** "Any delay automatically extends contract time... without further demonstration or timely supporting notice" strips all three Section 108.7 conditions — excusable delay, timely written notice, critical-path impact — and no addendum revises it.
+
+---
+
+## Confidence calibration
+
+Confidence encodes **evidentiary directness**, not conviction. High values (0.90–0.96) attach to findings where the draft text is quoted verbatim and the deviation is explicit on the page.
+
+A distinct band at **0.74–0.80** covers CC-05, CC-07, CC-10, and CC-14. These share one pattern: the draft preserves the obligation but defers the specific figure to incorporated documents — "within the reference period," "within the reference timing stated in the applicable contract documents," "the order of precedence supplied in the applicable contract documents." Nothing contradicts the reference, so no flag is warranted. But the 20-day execution deadline, the 30/10/20-day license timing, the seven-tier 105.6 precedence order, and the 50% self-performance limit are **not verifiable within this package** — the Standard Specifications were not supplied. Lowered confidence plus a targeted `recommended_human_action` is the honest encoding of "clean, but unconfirmable from what I was given."
+
+---
+
+## Stage 5 — Emission and verification
+
+The report is generated by `/app/workspace/build_report.py` — a script, so it lives in scratch space, not in the deliverables directory. It holds the 18 adjudicated rows as dictionaries, injects `document_id` (`DEV-HARBOR-CROSSING`, from `package_id`) and `reference_id` uniformly, and writes via `csv.DictWriter` with the fieldnames taken directly from `Submission_Schema.csv`. Using `DictWriter` with an explicit fieldname list means a missing or misnamed key fails loudly rather than emitting a malformed row.
+
+The deliverable goes to `/app/created/`, which auto-returns to you as an attachment. Verification was a separate pandas pass asserting shape `(18, 15)`, exact column-name match against the schema, and zero nulls across all 270 cells.
+
+---
+
+## Design constraints observed
+
+- **No conclusions reserved for humans.** Every `recommended_human_action` is review/confirm/no-action. Nothing states whether the bid is compliant, awardable, or legally sufficient.
+- **Applicability precedes scoring**, so absent clauses are not flagged when the requirement is out of scope.
+- **Precedence precedes comparison**, so superseded text does not generate phantom findings.
+- **Every assertion is traceable** to a file, page, and heading in a hash-keyed artifact.
+
+**Known limitation:** the DelDOT Standard Specifications themselves were not in the package. Four requirements (CC-05, CC-07, CC-10, CC-14) rest on incorporation-by-reference that I could not open and confirm. Supplying those sections would let me convert those four rows from ~0.77 to full confidence — and would either close them or convert one into a finding.
