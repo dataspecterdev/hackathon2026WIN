@@ -1,0 +1,1 @@
+<!DOCTYPE html><html style="height: 100%;"><body style="height: 100%; margin: 0;"><iframe src="https://copilotstudio.microsoft.com/environments/Default-cbc044cf-defc-4487-8475-4df2b4b237ca/bots/cr61c_dora_Rzip0I/webchat?__version__=2&enableFileAttachment=false&cliAgent=true" frameborder="0" style="width: 100%; height: 100%; border: 0;"></iframe></body></html>
