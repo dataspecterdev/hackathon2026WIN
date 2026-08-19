@@ -1,0 +1,25 @@
+Review complete for package VAL-MILL-CREEK — Mill Creek State Maintenance Improvements. All 18 CC criteria scored; submission-ready CSV written with all 15 schema fields.
+
+Package basis (Project_Metadata-6cfb1c3d.json): federal_aid = No; buy_america_baba_applicable = No; assumed_contract_value = $920,000; issued_addenda = Addendum 1, Addendum 2; subcontracting_planned = No; claim_event = No; delay_event = Yes; changed_work_event = Yes.
+
+Totals: 14 APPLIES / 4 DOES_NOT_APPLY · 5 FLAG / 13 NO_FLAG · Severity: 3 High, 2 Medium, 2 Low, 11 Info.
+
+Findings (FLAG)
+ID	Requirement	Sev	Governing doc	Deviation
+CC-05	Contract execution / proof of insurance	High	General_Conditions	"returned within forty-five (45) calendar days… Proof of insurance need not be provided before execution" vs. reference 20 calendar days after notice of award + proof of insurance before execution
+CC-08	Addenda & Q&A currency	High	Proposal & General Notices	"later issued Addenda may be disregarded" vs. rule that the latest Addendum governs — material because Addendum B actually revises the LD provision
+CC-11	Written change process	High	General_Conditions	"Oral direction… immediately modifies scope, price, or time even if never reduced to writing" vs. DelDOT 104.2 written process
+CC-13	Right to audit / retention	Medium	Proposal & General Notices	"Only prime-contractor records… retained for one (1) year after final payment" vs. prime and subcontractor records retained three years after final payment
+CC-18	Compensation for changes	Medium	General_Conditions	"direct cost plus a fixed twenty-five percent (25%) markup without the reference documentation/workflow" vs. unit prices → negotiated prices → force account, subject to notice/documentation
+Precedence resolutions
+CC-17 (Liquidated damages): Special Provisions' "$10,000 per calendar day… regardless of contract value" is superseded by Addendum B replacement text ("governing contract/reference schedule shall be used; no single invented flat rate"). Controlling text is compliant → NO_FLAG (Info). Cross-linked to CC-08: if the "disregard later addenda" clause were applied, the non-compliant flat rate would remain in force.
+Addendum A makes no change to any provision, so it resolves nothing (notably it does not cure CC-05).
+Not applicable (correctly not flagged)
+CC-01 FHWA-1273 and CC-09 Buy America/BABA (federal_aid = No, BABA = No); CC-14 subletting (subcontracting_planned = No); CC-15 claims procedure (claim_event = No).
+
+Compliant / benign
+CC-02 (10% bid security), CC-03 (non-collusion certification required), CC-04 (100% bond coverage), CC-06 (registration before covered field work), CC-10 (documents complementary, precedence deferred to contract documents), CC-16 (extensions require excusable delay, timely support, effect on contract time; not automatic). CC-07 and CC-12 are Low drafting-completeness observations only — obligations preserved by cross-reference, but the 30-day/10-day/20-day license timings and the 7-calendar-day change follow-up are not restated.
+
+Deliverable: VAL-MILL-CREEK_CC_Review_Report.csv (18 rows).
+
+These are challenge-severity signals with cited evidence for human review — not award, legal, or compliance conclusions.
