@@ -1,4 +1,4 @@
-# GCP DelDOT Contract Admin Hackathon 2026
+# GCP DelDOT Contract Admin Hackathon 2026 not final project but integral.
 
 Evidence-grounded Vertex AI pipeline that reviews transportation contract packages against the DelDOT challenge checklist (CC-01..CC-18). Public repo: [gcp-deldot-contract-admin-hackathon-2026](https://github.com/dataspecterdev/gcp-deldot-contract-admin-hackathon-2026).
 
