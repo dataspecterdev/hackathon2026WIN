@@ -1,0 +1,31 @@
+Report generated: /app/created/DEV-STONE-CREEK_CC_Review_Submission.csv — 18 rows (one per CC requirement), all 15 required schema fields populated, no nulls1.
+
+Package reviewed — DEV-STONE-CREEK
+Stone Creek Grade-Separated Intersection Improvements | Federal aid: Yes | Buy America/BABA: Yes | Assumed contract value: $28,750,000 | Issued addenda: Addendum 1 | Subcontracting, claim, delay, and changed-work events: all Yes (Project_Metadata-9a765e29.json).
+
+Applicability
+All 18 criteria assessed APPLIES; no DOES_NOT_APPLY determinations, since federal-aid, Buy America, subcontracting, claim, delay, and changed-work triggers are all affirmatively set in metadata2.
+
+Severity distribution — 8 FLAG / 10 NO_FLAG
+Severity	Count	Requirements
+Critical	0	—
+High	3	CC-05, CC-11, CC-14
+Medium	3	CC-15, CC-17, CC-18
+Low	2	CC-07, CC-08
+Info	10	CC-01, CC-02, CC-03, CC-04, CC-06, CC-09, CC-10, CC-12, CC-13, CC-16
+High findings
+CC-05 — Execution / proof of insurance (General_Conditions p.1): "Execution documents may be returned within forty-five (45) calendar days. Proof of insurance need not be provided before execution." Reference DelDOT 103.7 requires return within 20 calendar days after notice of award and proof of insurance before execution2.
+CC-11 — Written change process (General_Conditions p.1): "Oral direction … immediately modifies scope, price, or time even if never reduced to writing," contradicting DelDOT 104.2.
+CC-14 — Subletting (General_Conditions p.1): "Up to eighty percent (80%) … may be subcontracted without Department approval, and the prime is not responsible for subcontractor performance." DelDOT 108.1 requires prime self-performance of no less than 50% of total original contract price, written consent, and no relief of prime responsibility2.
+Medium findings
+CC-15 — Claims (General_Conditions): general notice within 60 days, documentation "optional" vs. DelDOT 105.15 written claim within 30 calendar days after completion of the noticed work.
+CC-17 — Liquidated damages (Special_Provisions p.1): flat $10,000 per calendar day "regardless of contract value or governing schedule" vs. the DelDOT 108.9 schedule for the $28,750,000 value.
+CC-18 — Compensation for changes (General_Conditions): direct cost plus fixed 25% markup replacing the DelDOT 109.4 sequence (contract unit prices → negotiated prices → force account).
+Low findings
+CC-07 — license clause defers to "reference timing" without stating the 30-day / 10-day / 20-day triggers or the license-accompanies-proposal requirement2.
+CC-08 — designation mismatch: metadata lists "Addendum 1"; the package document is titled "Addendum A." Substantively current, no addendum ignored.
+Precedence resolutions (not findings)
+CC-04: Addendum A replacement text restores 100% bond coverage, superseding the General Conditions' 75% text.
+CC-10: Addendum A restores the complementary-documents / order-of-precedence rule, curing the General Conditions' inverted hierarchy (Standard Specifications over Special Provisions and General Notices).
+CC-01: FHWA-1273 is physically attached, satisfying the physical-inclusion rule rather than reference-only3.
+No approval, award, legal, or procurement conclusion is offered — all rows carry a recommended_human_action for reviewer disposition.
