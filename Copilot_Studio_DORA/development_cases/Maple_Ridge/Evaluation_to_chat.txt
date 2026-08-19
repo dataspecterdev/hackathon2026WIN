@@ -1,0 +1,29 @@
+18/18 exact match against the DEV-MAPLE-RIDGE gold rows — all three scored fields agree on every requirement.
+
+Scoring against Evaluation_Criteria
+Metric	Weight	Score	Basis
+Applicability accuracy	20%	1.00	18/18; all 6 DOES_NOT_APPLY rows correct
+Finding detection (precision + recall)	25%	1.00	TP 2, FP 0, FN 0, TN 16 → P 1.00 / R 1.00 / F1 1.00
+Cross-document precedence resolution	20%	1.00	4/4 precedence rows (CC-02, CC-04, CC-07, CC-08)
+Semantic deviation discrimination	15%	1.00	10/10 APPLIES + NO_FLAG equivalence rows
+Evidence and citation correctness	15%	~0.97	Manual; 1 minor divergence (CC-02)
+Severity agreement	5%	1.00	18/18, incl. High on CC-08, Medium on CC-13
+Weighted total on the five auto-scorable metrics: 0.85/0.85 (normalized 1.000); composite ≈ 0.995.
+
+Scope of the join
+Development_Labels-227973d6.csv holds 108 rows across 6 packages (DEV-PINE-GROVE, DEV-HARBOR-CROSSING, DEV-STONE-CREEK, DEV-NORTHFIELD, DEV-MAPLE-RIDGE, DEV-RIVERBEND). Filtering to DEV-MAPLE-RIDGE yields 18 rows, joined on requirement ID — 18 matched, 0 unmatched on either side.
+
+Both findings confirmed
+CC-08 / FLAG / High — gold rationale: "proposal acknowledgment omits issued Addendum 1." Our evidence quoted "later issued Addenda may be disregarded." Same clause, same defect.
+CC-13 / FLAG / Medium — gold rationale: "record retention shortened to 1 year." Our row cited both the 1-year retention and the prime-only audit scope — a superset, same severity.
+Precedence calls validated
+Gold confirms both cures independently: CC-04 "Proposal says 75% bonds; Addendum 1 revises to 100%" and CC-07 "Proposal allows 60-day subcontractor license submission; Addendum 1 restores the reference timing." Flagging either would have cost precision and the 20% precedence metric. Gold's references to "Addendum 1" also resolve the Addendum A / Addendum 1 naming question raised in the review — same instrument.
+
+One minor divergence (no label impact)
+CC-02 — gold rationale reads "After Addendum correction, 10% requirement is preserved," implying an addendum route. Addendum A as supplied contains replacement text only for bonds and licenses; it says nothing about bid security, so the Proposal clause ("one-tenth (10%) of the bid amount") is the correct governing document on the evidence provided. Applicability, label, and severity all still agree.
+
+Worth noting: CC-12 was our lowest-confidence row at 0.62 and still matched gold — the calibration surfaced real drafting ambiguity without producing a wrong label.
+
+Caveat: only 18 of 108 gold rows are in scope; the other 5 packages were not reviewed. Evaluation_Criteria supplies weights and purposes but no computation formula, so the four quantitative metrics were derived as documented and evidence correctness was assessed manually against the gold Rationale column. These are development-label agreement scores, not contract or procurement determinations.
+
+Full breakdown: DEV-MAPLE-RIDGE_Benchmark_Comparison.md.
