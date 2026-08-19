@@ -1,0 +1,31 @@
+Report generated and validated: /app/created/DEV-RIVERBEND_CC_Review_Report.csv — 18 rows (one per CC requirement), columns exactly matching the 15 fields in Submission_Schema.csv1, no empty required cells.
+
+Package reviewed
+Package ID DEV-RIVERBEND — Riverbend Corridor Contract Administration. Metadata: federal_aid = Yes, buy_america_baba_applicable = Yes, assumed_contract_value = $8,200,000, issued_addenda = Addendum 1, subcontracting_planned = Yes, claim_event = Yes, delay_event = Yes, changed_work_event = Yes (Project_Metadata-5138e60d.json). Documents: Proposal and General Notices (2 pp.), General Conditions (1 p.), Special Provisions (1 p.), Addendum A (1 p.), FHWA-1273 Contract Provisions Attachment (1 p.).
+
+Applicability
+All 18 requirements scored APPLIES; no DOES_NOT_APPLY rows. Federal-aid status activates CC-01/CC-09; metadata event flags activate CC-15, CC-16, CC-18; subcontracting_planned activates CC-14.
+
+Severity summary
+Severity	Count	Requirements
+Critical	0	—
+High	1	CC-12
+Medium	3	CC-15, CC-16, CC-18
+Low	0	—
+Info (NO_FLAG)	14	CC-01–CC-11, CC-13, CC-14, CC-17
+Total FLAG: 4 of 18.
+
+Findings (FLAG)
+CC-12 — Notification of contract changes (High) — General Conditions p.1: "Written follow-up documentation may be submitted within thirty (30) calendar days after the alleged change." Benchmark (DelDOT 104.3) requires immediate oral and written notice, work on affected items only after written direction, and written follow-up within 7 calendar days. Three-part weakening; no addendum revises it.
+CC-15 — Claims procedure (Medium) — "general notice within sixty (60) days; detailed contemporaneous documentation is optional" vs. DelDOT 105.15 written claim within 30 calendar days after completion of the work described in the notice of intent, plus 104.3 notice compliance.
+CC-16 — Extensions of contract time (Medium) — "Any delay automatically extends contract time for the length of the delay" removes all three DelDOT 108.7 prerequisites (excusable delay, timely written notice, critical-path/substantial-completion effect).
+CC-18 — Compensation for changes (Medium) — "direct cost plus a fixed twenty-five percent (25%) markup without the reference documentation/workflow" replaces the DelDOT 109.4 sequence (contract unit prices → negotiated prices → force account).
+Precedence resolution
+CC-11 — no flag after Addendum A. General Conditions p.1 stated "Oral direction … immediately modifies scope, price, or time even if never reduced to writing" (a High-severity deviation standing alone). Addendum A p.1 issues REPLACEMENT TEXT for that named provision: "Scope, price, or time changes require the documented written process; oral direction alone does not modify the contract." Under DelDOT 105.6 and the checklist's later-addendum rule, Addendum A governs, so the controlling text conforms. Governing document recorded as Addendum A with both superseded and superseding evidence.
+CC-17 governed by Special Provisions (higher precedence than Standard Specifications), which tie liquidated damages to the governing schedule and reject a universal flat rate.
+CC-01 satisfied by physical inclusion of the FHWA-1273 attachment, not a reference-only statement.
+Lower-confidence rows for human attention
+CC-14 (0.65), CC-07 (0.70) and CC-05 (0.72) incorporate reference thresholds by phrases such as "within the reference timing" and "Required Department approval/limits apply" rather than restating the 50% own-organization requirement, the 30-day/10-day license timing, or the 20-calendar-day execution period. Nothing is shortened or deleted, so no deviation is scored, but a reviewer should confirm those incorporated terms are administered at the reference values.
+
+No approval, award, legal, or procurement conclusions are drawn — the report supplies evidence and challenge-severity signals for human review.
+
