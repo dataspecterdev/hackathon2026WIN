@@ -1,0 +1,23 @@
+Review complete for package DEV-MAPLE-RIDGE (Maple Ridge Maintenance Services). Two deliverables are attached.
+
+Findings — 2 flagged of 18 criteria
+CC-08 Addenda and Q&A currency — High 1 Proposal & General Notices, p.1: "Only the Addenda expressly listed in the original proposal need be acknowledged; later issued Addenda may be disregarded." The reference rule requires using the latest provided Addendum. This is also internally inconsistent with the package — Addendum A issues later replacement text for bonds and licenses, so applying this clause literally would make the controlling 100% bond coverage optional. Not cured by any later document. Confidence 0.94.
+
+CC-13 Right to audit and record retention — Medium 1 Proposal & General Notices, p.1: "Only prime-contractor records are subject to audit and records need be retained for one (1) year after final payment." Reference benchmark: prime and subcontractor records, retained three years after final payment. Two deviations — scope narrowed and retention shortened by two years. Confidence 0.92.
+
+Deviations cured by precedence (not flagged)
+Provision	Earlier text	Controlling text (Addendum A)
+CC-04 Bonds	GC: 75% of contract price "is sufficient"	100% of contract price, subject to referenced surety conditions
+CC-07 Licenses	Proposal: license not required with bid; sub copies at 60 days	Furnished "within the reference timing" (30 days / 10 days after a >20-day hire)
+Not applicable (6)
+CC-01 FHWA-1273 and CC-09 Buy America/BABA (federal_aid = No, BABA = No); CC-14 subletting (subcontracting_planned = No); CC-15 claims, CC-16 time extensions, CC-18 changed-work pricing (claim/delay/changed_work events all = No) 1.
+
+Severity summary
+Critical 0 · High 1 (CC-08) · Medium 1 (CC-13) · Low 0 · Info 16 — 12 APPLIES, 6 DOES_NOT_APPLY 2.
+
+Watch items (NO_FLAG, but confirm at conforming)
+CC-05, CC-07, CC-10, CC-12 and CC-17 all state obligations by cross-reference rather than restating figures. Confirm: 20 calendar days post-award execution + insurance before execution (CC-05); 30/10/20-day license timing (CC-07); the DelDOT 105.6 seven-tier order (CC-10); immediate oral + written notice, work only after written direction, 7 calendar days follow-up (CC-12); the 108.9 schedule row for the $650,000 value (CC-17). CC-12 carries the lowest confidence (0.62).
+
+Note: metadata lists the addendum as "Addendum 1" while the file is titled "Addendum A" — confirm they are the same instrument, since CC-04 and CC-07 resolutions depend on it. No Q&A record was supplied. Each PDF is a one-page clause excerpt, not a full contract. All severity labels are challenge-taxonomy signals for human review, not legal, compliance, or award conclusions.
+
+Files: DEV-MAPLE-RIDGE_CC_Review_Report.md and DEV-MAPLE-RIDGE_CC_Review_Submission.csv (18 rows × 15 schema fields, no nulls) 3.
