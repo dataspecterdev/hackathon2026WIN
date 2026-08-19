@@ -1,243 +1,205 @@
-# Case Study: DORA — DelDOT Orchestrated Review Assistant
+# DORA — DelDOT Orchestrated Review Assistant
 
-## Overview
+DORA is an evidence‑grounded contract clause review system built to analyze Delaware Department of Transportation (DelDOT) construction contract packages. It extracts text from PDFs, applies deterministic applicability rules, evaluates clauses against a curated reference checklist, and produces auditable results with file/page/line provenance.
 
-DORA is an AI-powered contract clause risk flagging system for Delaware DOT construction contracts. It reads contract PDFs, checks 18 critical requirements from the DelDOT Standard Specifications, and flags material deviations — telling you the exact file, page, and line number where a problem exists.
+This README targets the generating_rag branch and documents how to set up, run, and contribute to the project. For branch‑specific deployment notes see deploy.md.
 
-The system uses Amazon Bedrock (Claude Sonnet 4.6) for contract analysis, with the `Challenge_Reference_Rule` from the Reference Checklist as the sole scoring authority. Sources stored in a Bedrock Knowledge Base are used only for confidence scoring, not for decision-making.
+Table of contents
 
-**Key results:** 100% accuracy on the 108-row development label set (6 packages × 18 requirements).
+- What this is
+- Quick facts / stack
+- Repository layout
+- Setup
+  - Prerequisites
+  - Python backend
+  - Frontend (dora-ui)
+  - Optional: Docker
+- How to run
+  - CLI pipeline (contract_review)
+  - API server (dora_api)
+  - Frontend (development and production)
+- Outputs and file formats
+- RAG / Bedrock notes (experimental)
+- Testing
+- Deployment (high level)
+- Contributing
+- License & contact
 
-## Repository Structure
+What this is
 
-- `contract_review/` – Core analysis pipeline (extraction, applicability, precedence, prompts, evidence verification, reporting)
-- `dora_api/` – FastAPI backend (project management, file upload, analysis orchestration, REST API)
-- `dora-ui/` – React + TypeScript frontend (workspace UI, file tree, package organizer, document viewer)
-- `Contract_Clause_Risk_Flagging/` – Challenge data (References, Sources, Development packages, Validation packages)
-- `docs/` – Sphinx documentation scaffold
-- `output/` – Pipeline output (submission.csv, evidence_trace.csv, findings_report.json)
-- `infrastructure/` – AWS deployment configuration
-- `Dockerfile` – Container build for AWS App Runner deployment
+An end‑to‑end system that: (1) ingests contract PDFs grouped into packages; (2) determines which checklist requirements apply to a package; (3) judges whether a package meets each requirement using a mixture of deterministic logic and model‑backed analysis; and (4) emits auditable outputs (CSV/JSON/PDF) with evidence links to the exact contract lines.
 
-## How It Works
+Quick facts / stack
 
-1. **Upload** contract PDFs through the web interface (supports folders, multiple packages)
-2. **Extract** text with page/line provenance using pdfplumber
-3. **Decide applicability** deterministically from Project_Metadata.json
-4. **Resolve precedence** — Addenda that revise a clause govern over earlier text
-5. **Compare** each applicable clause against its Challenge_Reference_Rule via Bedrock Converse
-6. **Verify** the model's citations against the real extracted text
-7. **Report** findings with exact file/page/line references and confidence scores
+- Languages: Python (backend & pipeline), TypeScript/React (UI), small tooling in top‑level scripts
+- Frameworks: FastAPI for API server; React + TypeScript for frontend
+- Notable libraries (examples): pdfplumber (extraction), FastAPI, Uvicorn, pytest; Bedrock/LLM integrations are in contract_review/bedrock_client.py
 
-## Running Locally
+Repository layout (top-level)
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
-cd dora-ui && npm install && npm run build && cd ..
-
-# Start the server
-python -m uvicorn dora_api.main:app --host 0.0.0.0 --port 8000
-
-# Open http://localhost:8000
+```text
+.dockerignore           # Docker ignore
+.Dockerfile             # Container build for App Runner / ECR
+.deploy.md              # Deployment notes (AWS App Runner)
+LICENSE
+README.md               # (this file) branch: generating_rag
+requirements.txt        # Python deps
+contract_review/        # Core pipeline: extraction, pipeline, scoring, reporting
+dora_api/               # FastAPI server and project management endpoints
+dora-ui/                # React + TypeScript frontend
+Contract_Clause_Risk_Flagging/  # Challenge data, references, development/validation sets
+docs/                   # Sphinx docs + output file reference
+infrastructure/         # AWS infra manifests (ECR/App Runner etc.)
+output/                 # Example output runs (dev/validation)
+generate_kb_metadata.py # helper for knowledge base metadata
+spot_check.py           # quick verification scripts
+peek.py                 # small utility
+src/                    # miscellaneous supporting code
 ```
 
-**Environment variables required:**
-- `AWS_REGION` / `AWS_DEFAULT_REGION`
-- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`
-- `KB_ID` (Bedrock Knowledge Base ID, default: `QQB54AWRBZ`)
+How it fits together
 
-## Running the Pipeline (CLI)
+- The main CLI entrypoint is contract_review/cli.py. It runs package discovery, invokes ReviewPipeline (contract_review.pipeline), talks to a BedrockClient when configured, and writes outputs.
+- The API (dora_api) wraps the CLI/pipeline for interactive usage: upload packages, organize into named packages, trigger background analysis, and download results.
+- The dora-ui frontend talks to the API to create projects, upload files, trigger analysis, and present results.
 
-```bash
-# Analyze development packages and score
-python -m contract_review.cli --set development --score
+Setup
 
-# Analyze a single package
-python -m contract_review.cli --package Contract_Clause_Risk_Flagging/Development/Pine_Grove
-```
+Prerequisites
 
-## Documentation
+- Git
+- Python 3.10+
+- Node.js 18+ and npm or pnpm (for dora-ui)
+- Docker (optional, for container builds)
+- AWS account & CLI (optional, for Bedrock or App Runner deployment)
 
-This repository includes a Sphinx documentation scaffold in `docs/`. Build with:
+Python backend
 
-```bash
-cd docs
-make html
-```
-```
+1. Create and activate a virtualenv
 
-Here's the full step-by-step to deploy DORA on AWS using App Runner:
+   python -m venv .venv
+   source .venv/bin/activate   # macOS / Linux
+   .\.venv\Scripts\activate  # Windows
+
+2. Install dependencies
+
+   pip install -r requirements.txt
+
+3. Common environment variables (examples)
+
+- AWS_REGION or AWS_DEFAULT_REGION
+- AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY (or use an IAM role when running in AWS)
+- KB_ID — Knowledge Base ID used by the RAG experiments (if configured)
+- Any other env file referenced in dora_api/config or contract_review/config (check those files for exact names)
+
+Frontend (dora-ui)
+
+1. Install packages
+
+   cd dora-ui
+   npm install
+
+2. Development server
+
+   npm run dev
+
+3. Build production assets
+
+   npm run build  # emits dora-ui/dist/
+
+Docker (optional)
+
+- The Dockerfile in the repo root builds a container that serves the API and the frontend (if dora-ui/dist exists). Typical workflow:
+
+  docker build -t dora:latest .
+  # Tag and push to your registry (ECR for AWS): see deploy.md
+
+How to run
+
+CLI pipeline (quick path)
+
+- Run a single package and produce outputs
+
+  python -m contract_review.cli --package Contract_Clause_Risk_Flagging/Development/Pine_Grove --score
+
+- Run the bundled development set and score
+
+  python -m contract_review.cli --set development --score
+
+- Default output dir is output/ (override with --out)
+
+API server (development)
+
+- Start the FastAPI server (example using Uvicorn):
+
+  python -m uvicorn dora_api.main:app --reload --host 0.0.0.0 --port 8000
+
+- Endpoints of interest (see dora_api/main.py):
+  - POST /api/projects — create a project
+  - POST /api/projects/{id}/upload — upload PDFs (supports folder uploads)
+  - POST /api/projects/{id}/organize — group uploaded files into named packages
+  - POST /api/projects/{id}/analyze — trigger analysis (runs in background)
+  - GET /api/projects/{id}/outputs — list outputs
+  - GET /api/projects/{id}/outputs/{name} — download an output
+
+Frontend (development + production)
+
+- Development: run the dora-ui dev server and point it at the API (see CORS settings in dora_api/config.py)
+- Production: run npm run build in dora-ui so the static files are placed in dora-ui/dist; the FastAPI server will serve those files when present.
+
+Outputs and file formats
+
+Analysis produces these canonical outputs (see docs/output_files/ for field-level detail):
+
+- submission.csv — one row per package × requirement (the challenge submission format)
+- evidence_trace.csv — audit CSV with file/page/line references and quality metrics
+- findings_report.json — nested human readable report with verbatim quotes and criteria
+- run_summary.json — bookkeeping (packages processed, token usage, totals)
+
+RAG / Bedrock notes (experimental)
+
+- The generating_rag branch contains experimental code that constructs or queries a knowledge base and uses Bedrock (or configured LLM) to perform model judgments with retrieval context.
+- If you use RAG features, ensure the KB_ID and AWS credentials are configured and that your IAM role has the required Bedrock permissions. See generate_kb_metadata.py and contract_review/bedrock_client.py for details.
+
+Testing
+
+- Python tests: run pytest if a tests/ suite is present. Example:
+
+  pytest -q
+
+- Frontend tests: from dora-ui, run npm test (if configured in package.json)
+
+Deployment (high level)
+
+- Build dora-ui: cd dora-ui && npm run build
+- Build Docker image: docker build -t dora:latest .
+- Push to your registry (ECR for AWS) and deploy via App Runner/ECS/Kubernetes. The repo includes deploy.md with step‑by‑step App Runner instructions.
+
+Security & data handling
+
+- Do not commit secrets or private data; use .env and .gitignore
+- The API enforces a maximum upload size; check dora_api/config.py for MAX_UPLOAD_SIZE
+
+Contributing
+
+- Use feature branches: feature/<name> or fix/<name>
+- Open a Pull Request against the main integration branch
+- Add tests for behavioral changes and ensure CI passes
+
+License & contact
+
+- See LICENSE in the repo root for the project's license.
+- For questions about this codebase, contact the repository maintainers or the Deldot Contract Team.
 
 ---
 
-# Deploying DORA to AWS — Step by Step
+What I did
 
-## What you need first
+I reviewed the generating_rag branch (top‑level files, the CLI entrypoint, and the FastAPI app) and created a clearer, focused README.md on the generating_rag branch with structured setup and run instructions.
 
-- **AWS CLI** installed and configured (you already have credentials set)
-- **Docker Desktop** installed and running
-- Your **AWS account ID** (the 12-digit number — this project targets `775633088292`)
-- **Region**: `us-east-1` (same as your Bedrock/Knowledge Base)
+Next steps I can take for you
 
----
+- Commit the same README to the default branch (main/master) if you want it visible for everyone using the repo.
+- Or extend the README with copy snippets from files like contract_review/cli.py, dora_api/main.py, or docs/output_files/ for deeper command examples and exact env var names.
 
-## Step 1: Build the frontend
-
-```powershell
-cd dora-ui
-npm run build
-cd ..
-```
-
-This creates `dora-ui/dist/` which the container will serve.
-
----
-
-## Step 2: Create an ECR repository
-
-ECR = Elastic Container Registry. It's where AWS stores your Docker image.
-
-```powershell
-aws ecr create-repository --repository-name dora --region us-east-1
-```
-
-You'll get back a `repositoryUri` like:
-```
-775633088292.dkr.ecr.us-east-1.amazonaws.com/dora
-```
-
----
-
-## Step 3: Build and push your Docker image
-
-```powershell
-# Log Docker into ECR
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 775633088292.dkr.ecr.us-east-1.amazonaws.com
-
-# Build the image (from repo root where the Dockerfile is)
-docker build -t dora .
-
-# Tag it for ECR
-docker tag dora:latest 775633088292.dkr.ecr.us-east-1.amazonaws.com/dora:latest
-
-# Push to AWS
-docker push 775633088292.dkr.ecr.us-east-1.amazonaws.com/dora:latest
-```
-
-This uploads your full app to AWS. Takes 2-5 min.
-
----
-
-## Step 4: Create an IAM role for the app (Bedrock access)
-
-The running container needs permission to call Bedrock (Claude + Knowledge Base).
-
-**Create a file called `trust-policy.json`:**
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": { "Service": "tasks.apprunner.amazonaws.com" },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
-
-**Then run:**
-```powershell
-aws iam create-role --role-name dora-app-role --assume-role-policy-document file://trust-policy.json
-
-aws iam attach-role-policy --role-name dora-app-role --policy-arn arn:aws:iam::aws:policy/AmazonBedrockFullAccess
-```
-
----
-
-## Step 5: Create an ECR access role (so App Runner can pull your image)
-
-**Create `trust-policy-ecr.json`:**
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": { "Service": "build.apprunner.amazonaws.com" },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
-
-**Run:**
-```powershell
-aws iam create-role --role-name dora-ecr-access --assume-role-policy-document file://trust-policy-ecr.json
-
-aws iam attach-role-policy --role-name dora-ecr-access --policy-arn arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
-```
-
----
-
-## Step 6: Launch App Runner
-
-```powershell
-aws apprunner create-service --service-name dora --source-configuration "{\"AuthenticationConfiguration\":{\"AccessRoleArn\":\"arn:aws:iam::775633088292:role/dora-ecr-access\"},\"ImageRepository\":{\"ImageIdentifier\":\"775633088292.dkr.ecr.us-east-1.amazonaws.com/dora:latest\",\"ImageRepositoryType\":\"ECR\",\"ImageConfiguration\":{\"Port\":\"8000\",\"RuntimeEnvironmentVariables\":{\"AWS_REGION\":\"us-east-1\",\"KB_ID\":\"QQB54AWRBZ\",\"DORA_WORKSPACE\":\"/app/dora_workspace\"}}}}" --instance-configuration "{\"InstanceRoleArn\":\"arn:aws:iam::775633088292:role/dora-app-role\",\"Cpu\":\"1024\",\"Memory\":\"2048\"}" --region us-east-1
-```
-
-Replace `775633088292` with your actual account ID if different.
-
----
-
-## Step 7: Get your URL
-
-Wait 3-5 minutes, then:
-
-```powershell
-aws apprunner list-services --region us-east-1
-```
-
-Look for `"ServiceUrl"` — it'll be something like:
-```
-https://abc123xyz.us-east-1.awsapprunner.com
-```
-
-**That's your live website.** HTTPS is automatic. Share that URL with anyone.
-
----
-
-## What this gives you
-
-| Feature | Status |
-|---------|--------|
-| Public HTTPS URL | ✅ Automatic |
-| End-to-end encrypted | ✅ All within your AWS account |
-| Bedrock access | ✅ Via IAM role (no keys in code) |
-| Auto-scaling | ✅ App Runner handles it |
-| Cost when idle | ~$0.007/hour (pauses automatically) |
-
----
-
-## To tear down after hackathon
-
-```powershell
-aws apprunner delete-service --service-arn <your-service-arn> --region us-east-1
-aws ecr delete-repository --repository-name dora --force --region us-east-1
-```
-
-Total cost for a one-day hackathon: probably $2-5.
-
----
-
-## If something goes wrong
-
-| Error | Fix |
-|-------|-----|
-| Docker build fails | Make sure you ran `npm run build` in `dora-ui/` first |
-| Image push fails | Re-run the `aws ecr get-login-password` command (token expires) |
-| App Runner says "access denied" | Check the IAM roles in Steps 4 and 5 |
-| Analysis fails but app loads | Verify `KB_ID` matches your Knowledge Base and the region is right |
-
-Want me to help you run through any of these steps?
+If you want me to commit this README to the generating_rag branch now, confirm and I will write it to the repository.
