@@ -1,0 +1,8 @@
+metric,weight,evidence,raw_score,weighted_points
+Applicability accuracy,20%,18/18 correct APPLIES decisions; no over-flagging of non-applicable clauses,100.0%,20.0
+Finding detection (precision + recall),25%,"TP=6, FP=2 (CC-07, CC-08), FN=0; precision 0.750, recall 1.000, F1 0.857",85.7% (F1),21.43
+Cross-document precedence resolution,20%,CC-04 and CC-10 both resolved to Addendum A as governing; 2/2,100.0%,20.0
+Semantic deviation discrimination,15%,6/6 material deviations identified; 8/10 equivalent-wording rows correctly not flagged (14/16),87.5%,13.13
+Evidence and citation correctness,15%,18/18 rows carry verbatim draft quotes with file/page/heading plus correct reference section IDs; no fabricated citations,100.0%,15.0
+Severity agreement,5%,16/18 exact severity match; 6/6 exact on true findings,88.9%,4.44
+TOTAL,100%,,,94.0
