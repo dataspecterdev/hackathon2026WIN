@@ -1,0 +1,5 @@
+Initial prompt used with the Project_Metadata.json and all documents in the Docs folder attached:
+Generate a report for the proposal documented in the attached files
+
+Second prompt used for validation examples, attaching one file:
+Compare the generated csv file against the original proposal documents based on the metrics in Evaluation_Criteria.csv
