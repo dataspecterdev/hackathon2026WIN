@@ -1,0 +1,14 @@
+Comparison complete — deliverable DEV-PINE-GROVE_Label_Comparison.csv (18 rows, side-by-side predicted vs. expected).
+
+Scope: 108 gold rows exist in Development_Labels.csv across multiple packages; 18 are for DEV-PINE-GROVE — all 18 matched to my report rows (no unmatched rows either direction).
+
+Result: 18/18 exact matches on all three scored fields (applicability, label, severity).
+
+Evaluation metric	Weight	Result
+Applicability accuracy	20%	18/18 = 100%. All 4 DOES_NOT_APPLY (CC-01, CC-08, CC-09, CC-15) and 14 APPLIES decisions correct; no over-flagging of absent non-applicable clauses.
+Finding detection (precision + recall)	25%	TP 7, FP 0, FN 0, TN 11 → precision 1.00, recall 1.00, F1 1.00.
+Cross-document precedence resolution	20%	No conflicts to resolve in this package (issued_addenda: [], "Issued addenda: None"). Governing document correctly assigned per source: Proposal/General Notices (CC-02, CC-03, CC-06, CC-07, CC-13), General Conditions (CC-11), Special Provisions (CC-17). The CC-17 note that Special Provisions outrank Standard Specifications under DelDOT 105.6 is consistent with the gold rationale "flat $10,000/day rate regardless of governing schedule." Note: the harder precedence cases sit in other packages — DEV-HARBOR-CROSSING CC-04 (Addendum 2 revises 75%→100%), CC-08 (Addendum 3 unacknowledged), CC-12 (Addendum 3 revises 30→7 days) — which were not in scope here.
+Semantic deviation discrimination	15%	11/11 equivalent-wording rows correctly held at NO_FLAG, including the paraphrase traps: CC-10 (gold: "Hierarchy restated in equivalent wording"), CC-12, CC-14, CC-16, CC-18. Zero false-positive burden.
+Evidence and citation correctness	15%	Every flagged row cites verbatim draft text plus the authoritative section. Direct concordance with gold rationales: CC-02 "5% bid guaranty"; CC-03 "certification made optional"; CC-06 "registration allowed after work begins"; CC-07 "business-license evidence removed / subcontractor timing extended"; CC-11 "oral direction immediately changes scope/price/time"; CC-13 "retention shortened to 1 year and subcontractor records excluded"; CC-17 "flat $10,000/day rate regardless of governing schedule."
+Severity agreement	5%	18/18 = 100%. 5 High (CC-02, CC-03, CC-06, CC-07, CC-11), 2 Medium (CC-13, CC-17), 11 Info. No Critical expected or predicted — consistent with non-federal-aid, Buy America/BABA "No".
+No discrepancies to reconcile. The two lowest-confidence rows (CC-14 at 0.70, CC-12 at 0.72) both matched gold as NO_FLAG/Info — the hedging was conservative rather than wrong, and the gold rationale for both is "No material deviation present."
