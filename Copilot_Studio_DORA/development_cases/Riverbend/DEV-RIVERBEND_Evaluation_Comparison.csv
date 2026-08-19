@@ -1,0 +1,28 @@
+package_id,requirement_id,expected_applicability,predicted_applicability,applicability_match,expected_label,predicted_label,label_match,expected_severity,predicted_severity,severity_match,row_result,expected_rationale,predicted_governing_document,predicted_confidence
+DEV-RIVERBEND,CC-01,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,FHWA_1273_Contract_Provisions_Attachment-2b837848.pdf,0.95
+DEV-RIVERBEND,CC-02,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,Proposal_and_General_Notices-dee8a399.pdf,0.95
+DEV-RIVERBEND,CC-03,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,Proposal_and_General_Notices-dee8a399.pdf,0.92
+DEV-RIVERBEND,CC-04,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,General_Conditions-d9628d53.pdf,0.94
+DEV-RIVERBEND,CC-05,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,General_Conditions-d9628d53.pdf,0.72
+DEV-RIVERBEND,CC-06,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,Proposal_and_General_Notices-dee8a399.pdf,0.9
+DEV-RIVERBEND,CC-07,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,Proposal_and_General_Notices-dee8a399.pdf,0.7
+DEV-RIVERBEND,CC-08,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,Proposal_and_General_Notices-dee8a399.pdf,0.88
+DEV-RIVERBEND,CC-09,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,Proposal_and_General_Notices-dee8a399.pdf,0.93
+DEV-RIVERBEND,CC-10,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,Equivalent hierarchy wording.,General_Conditions-d9628d53.pdf,0.8
+DEV-RIVERBEND,CC-11,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,Proposal permits oral change direction; Addendum 1 replaces it with the required written-process language.,Addendum_A-ce85d8bb.pdf,0.9
+DEV-RIVERBEND,CC-12,APPLIES,APPLIES,True,FLAG,FLAG,True,High,High,True,MATCH,change follow-up changed to 30 days,General_Conditions-d9628d53.pdf,0.92
+DEV-RIVERBEND,CC-13,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,Proposal_and_General_Notices-dee8a399.pdf,0.95
+DEV-RIVERBEND,CC-14,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,General_Conditions-d9628d53.pdf,0.65
+DEV-RIVERBEND,CC-15,APPLIES,APPLIES,True,FLAG,FLAG,True,Medium,Medium,True,MATCH,claim deadline/workflow materially extended,General_Conditions-d9628d53.pdf,0.9
+DEV-RIVERBEND,CC-16,APPLIES,APPLIES,True,FLAG,FLAG,True,Medium,Medium,True,MATCH,automatic extension without reference conditions,General_Conditions-d9628d53.pdf,0.93
+DEV-RIVERBEND,CC-17,APPLIES,APPLIES,True,NO_FLAG,NO_FLAG,True,Info,Info,True,MATCH,No material deviation present.,Special_Provisions-2777166b.pdf,0.9
+DEV-RIVERBEND,CC-18,APPLIES,APPLIES,True,FLAG,FLAG,True,Medium,Medium,True,MATCH,fixed 25% markup replaces reference change-pricing workflow,General_Conditions-d9628d53.pdf,0.93
+
+METRIC,WEIGHT,SCORE,WEIGHTED,BASIS,,,,,,,,,,
+Applicability accuracy,20%,18/18 = 100%,20.0,"All 18 rows scored APPLIES, matching every expected applicability decision; no non-applicable clause over-flagged.",,,,,,,,,,
+Finding detection (precision + recall),25%,P=1.00 R=1.00 F1=1.00 (TP=4 FP=0 FN=0 TN=14),25.0,"CC-12, CC-15, CC-16, CC-18 flagged; no unsupported flags.",,,,,,,,,,
+Cross-document precedence resolution,20%,1/1 = 100%,20.0,CC-11: Addendum A selected as governing document over superseded General Conditions oral-direction text.,,,,,,,,,,
+Semantic deviation discrimination,15%,14/14 NO_FLAG rows correct,15.0,"Paraphrases at CC-10, CC-03, CC-05, CC-07, CC-14 correctly scored Info; no false positives.",,,,,,,,,,
+Evidence and citation correctness,15%,18/18 rows carry file+section evidence and reference IDs,15.0,Every row cites reviewed-document location plus checklist/DelDOT reference section.,,,,,,,,,,
+Severity agreement,5%,18/18 = 100%,5.0,"1 High, 3 Medium, 14 Info match expected labels exactly.",,,,,,,,,,
+TOTAL,100%,,100.0,,,,,,,,,,,
