@@ -1,0 +1,34 @@
+Report generated: /app/created/DEV-HARBOR-CROSSING_CC_Review_Report.csv — 18 rows (one per CC requirement), 15 columns matching Submission_Schema.csv exactly1, no nulls.
+
+Package reviewed
+Package ID DEV-HARBOR-CROSSING — Harbor Crossing Pavement Rehabilitation. Metadata: federal_aid Yes, Buy America/BABA applicable Yes, assumed contract value $3,250,000, issued addenda Addendum 1/2/3, subcontracting_planned Yes, claim_event No, delay_event Yes, changed_work_event No (Project_Metadata-b5458584.json).
+
+Severity summary
+Severity	Count	Requirements
+Critical	2	CC-01, CC-09
+High	1	CC-08
+Medium	1	CC-16
+Low	0	—
+Info (no issue)	14	CC-02–CC-07, CC-10–CC-15, CC-17, CC-18
+16 APPLIES / 2 DOES_NOT_APPLY (CC-15 claims, CC-18 changed-work pricing — both negated by metadata event flags)2.
+
+Findings (4 FLAGs)
+CC-01 — FHWA-1273 physical incorporation — Critical. Proposal_and_General_Notices p.1: "FHWA-1273 is incorporated by reference. No FHWA-1273 attachment is included in this package." Reference FHWA-1273 I.1 requires physical inclusion on a Title 23 federal-aid contract; reference-only is insufficient2.
+
+CC-09 — Buy America / BABA applicability — Critical. Proposal_and_General_Notices p.1: "Domestic-content requirements do not apply to this project" — contradicts both metadata (buy_america_baba_applicable: Yes) and the proposal's own summary block ("Buy America/BABA applicable: Yes"). A clause disclaiming applicability where the requirement applies is a finding2​3.
+
+CC-08 — Addenda and Q&A currency — High. Proposal_and_General_Notices p.1: "Only the Addenda expressly listed in the original proposal need be acknowledged; later issued Addenda may be disregarded." Material because Addenda B and C carry substantive replacement text.
+
+CC-16 — Extensions of contract time — Medium. General_Conditions p.1: "Any delay automatically extends contract time for the length of the delay without further demonstration or timely supporting notice." DelDOT 108.7 requires an excusable delay, timely written notice, and critical-path impact; delay does not create an automatic extension2.
+
+Precedence resolutions (flagged text superseded — scored NO_FLAG)
+CC-04 bonds: General_Conditions states 75% coverage "is sufficient"; Addendum B replacement text restores 100% of the contract price, matching DelDOT 103.5. Addendum B governs.
+CC-12 change notification: General_Conditions permits written follow-up within 30 calendar days; Addendum C replacement text restores timely written notice and the reference follow-up period (DelDOT 104.3 benchmark: immediate oral and written notice, work proceeds only after written direction, follow-up within 7 calendar days). Addendum C governs.
+Addendum A makes no change to any provision, so it does not cure CC-16.
+Notable equivalences (no finding)
+CC-02: 10% of total bid price — exact match to DelDOT 102.8.
+CC-13: "36 months following final payment" is equivalent to the three-year retention benchmark.
+CC-17: Special Provisions tie liquidated damages to the governing schedule and expressly reject a universal flat rate.
+Lower-confidence rows worth human attention: CC-07 (0.78) and CC-14 (0.76) preserve requirements only by cross-reference — the compiled contract should state the 30-day/10-day/20-day license timings and the 50% self-performance threshold explicitly.
+
+These are challenge-severity signals with cited evidence for human review, not approval, award, legal, or compliance conclusions.
