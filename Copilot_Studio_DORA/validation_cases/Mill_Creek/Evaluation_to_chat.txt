@@ -1,0 +1,29 @@
+All 14 checklist-mapped clauses reconcile (the CC-08 "gap" is a script normalization artifact — the heading extracts as Addenda and Q&A; currency, and the clause text is present). Building the scorecard.
+
+I've finished the analysis, so now I'll put together the summary for the user.
+Compared VAL-MILL-CREEK_CC_Review_Report.csv against all five source PDFs plus the metadata, scored on the six weighted metrics in Evaluation_Criteria.csv. Deliverable: VAL-MILL-CREEK_Evaluation_Scorecard.csv.
+
+Weighted self-assessed total: 97.3% (weights sum to 100%)
+
+Metric	Weight	Score	Weighted
+Applicability accuracy	20%	100%	20.0
+Finding detection (precision + recall)	25%	95%	23.8
+Cross-document precedence resolution	20%	100%	20.0
+Semantic deviation discrimination	15%	93%	14.0
+Evidence and citation correctness	15%	98%	14.7
+Severity agreement	5%	95%	4.8
+What the comparison verified
+Applicability (20%) — clean. All 6 metadata-gated requirements matched programmatically: federal_aid=No→CC-01 DOES_NOT_APPLY, buy_america_baba_applicable=No→CC-09, subcontracting_planned=No→CC-14, claim_event=No→CC-15, delay_event=Yes→CC-16 APPLIES, changed_work_event=Yes→CC-18 APPLIES. Clause inventory reconciled 14/14: 5 clause blocks in the Proposal, 7 in General Conditions, 1 in Special Provisions, 1 revision in Addendum B — every present clause is marked APPLIES, none suppressed. The two Critical items (CC-01, CC-09) were correctly not flagged for absence, which is the main over-flagging trap on a non-federal-aid package.
+
+Precedence (20%) — both directions correct. Addendum B revises exactly one named provision, and CC-17's governing_document is set to it, superseding the Special Provisions "$10,000 per calendar day… regardless of contract value." Addendum A revises nothing and was correctly treated as a decoy — it was not credited with curing CC-05.
+
+Evidence (15%) — 18/18 rows passed automated audit. Every quoted draft_evidence sentence matches the source text verbatim; all 15 schema fields present and non-empty; all reference_location values carry the authoritative section; reference thresholds restated exactly (10%, 100%, 20 calendar days, 30/10/20 days, 7 calendar days, 3 years, 30 calendar days, 50%).
+
+Severity (5%). All 5 FLAG severities match the checklist's prescribed value exactly — CC-05/CC-08/CC-11 High, CC-13/CC-18 Medium.
+
+Residual risk concentrated in two rows
+CC-07 and CC-12 are held at NO_FLAG/Low. Both preserve the obligation by cross-reference but omit the concrete figures — CC-07 does not restate the 30-day / 10-day / 20-day license intervals, and CC-12 does not restate immediate oral notice, the proceed-only-after-written-direction condition, or the 7-calendar-day follow-up. If the grading rubric treats incorporation-by-reference as substantive weakening, these are 2 missed FLAGs (recall), and if it requires NO_FLAG to always pair with Info, they also cost partial severity credit. Secondary sensitivity: CC-10 and CC-16 use compressed paraphrases ("order of precedence supplied in the applicable contract documents"; "effect on contract time" rather than critical path/substantial completion) read as equivalent rather than weakened.
+
+One cross-cutting dependency is documented in the report itself: the CC-08 clause allowing later addenda to be disregarded would, if honored, reinstate the non-compliant $10,000 flat rate that Addendum B removes.
+
+This is a self-assessment against the stated metrics to support human review — not an independent grading or a compliance conclusion.
