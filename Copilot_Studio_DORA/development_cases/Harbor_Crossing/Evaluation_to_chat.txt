@@ -1,0 +1,28 @@
+18/18 rows match on all three scored fields. Comparison file: /app/created/DEV-HARBOR-CROSSING_Label_Comparison.csv.
+
+Scope
+Development_Labels.csv contains 108 rows across 6 packages (DEV-PINE-GROVE, DEV-HARBOR-CROSSING, DEV-STONE-CREEK, DEV-NORTHFIELD, DEV-MAPLE-RIDGE, DEV-RIVERBEND). The relevant subset is the 18 DEV-HARBOR-CROSSING rows (CC-01 through CC-18) — a clean 1:1 join with my report, no unmatched rows on either side.
+
+Scorecard against Evaluation_Criteria.csv
+Metric	Weight	Result
+Applicability accuracy	20%	18/18 (100%) — both DOES_NOT_APPLY rows (CC-15, CC-18) correctly identified; no over-flagging of absent non-applicable clauses
+Finding detection (precision + recall)	25%	Precision 1.00, Recall 1.00, F1 1.00 — TP 4, FP 0, FN 0, TN 14
+Cross-document precedence resolution	20%	2/2 correct — CC-04 and CC-12 both resolved to the revising addendum
+Semantic deviation discrimination	15%	14/14 equivalence calls correct — no benign paraphrase escalated
+Evidence and citation correctness	15%	Every row cites a real file + page + heading and the matching reference section; verified against extracted text
+Severity agreement	5%	18/18 exact — Critical×2, High×1, Medium×1, Info×14
+Finding detection detail
+All four expected FLAGs found, with matching severity:
+
+CC-01 Critical — expected "FHWA-1273 referenced only; attachment absent"; my evidence quoted the proposal's own "No FHWA-1273 attachment is included in this package."
+CC-09 Critical — expected "draft says Buy America/BABA does not apply"; matched exactly.
+CC-08 High — expected "proposal acknowledges Addenda 1-2 but Addendum 3 is issued"; I flagged the same clause via its operative language ("later issued Addenda may be disregarded"), which is the mechanism producing the missed Addendum 3. Same finding, same severity, evidence differs in framing.
+CC-16 Medium — expected "automatic extension for any delay without reference conditions"; matched exactly.
+Zero false positives across the 14 NO_FLAG rows, including the deliberate equivalence traps: CC-03 (capitalization/wording only) and CC-13 (paraphrased audit clause retaining 3-year/36-month retention) — both correctly scored Info.
+
+Precedence resolution detail
+The gold rationales name addenda by number; the uploaded files are lettered. The mapping holds consistently:
+
+CC-04 — gold: "Proposal says 75% bonds; Addendum 2 explicitly revises to 100%." My report: General_Conditions 75% superseded by Addendum_B (100%). Addendum B = Addendum 2. ✅
+CC-12 — gold: "Proposal says 30-day follow-up; Addendum 3 revises to 7 days." My report: General_Conditions 30-day superseded by Addendum_C. Addendum C = Addendum 3. ✅
+One naming note for the human reviewer: my governing_document values use the uploaded filenames (Addendum_B-6867ca88.pdf, Addendum_C-3d004e54.pdf) rather than the metadata labels (Addendum 2, Addendum 3). The substantive resolution is identical, but if downstream submission expects the numbered labels, that field would need relabeling.
