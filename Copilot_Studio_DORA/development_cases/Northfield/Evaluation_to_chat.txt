@@ -1,0 +1,24 @@
+18 of 18 rows are a full match — applicability, label, and severity all agree with the gold labels. Zero mismatches.
+
+I filtered Development_Labels.csv (108 rows across 6 packages) to the 18 rows where Package_ID = DEV-NORTHFIELD and joined on Requirement_ID.
+
+Scores against Evaluation_Criteria (6 metrics, 100% total weight)
+Metric	Weight	Score	Points
+Applicability accuracy	20%	18/18 = 100% — 14 APPLIES + 4 DOES_NOT_APPLY correct; 0 non-applicable clauses over-flagged	20.00
+Finding detection (precision + recall)	25%	TP=5, FP=0, FN=0, TN=13 → precision 100%, recall 100%, F1 = 100%	25.00
+Cross-document precedence resolution	20%	100% (self-assessed — not label-encoded)	20.00
+Semantic deviation discrimination	15%	9/9 = 100% applicable-but-benign clauses correctly unflagged	15.00
+Evidence and citation correctness	15%	100% (self-assessed — not label-encoded)	15.00
+Severity agreement	5%	18/18 exact; mean ordinal distance 0.000	5.00
+TOTAL	100%		100.00
+The 65% of weight that is directly auto-scorable from the gold labels scores 65.00 / 65.00.
+
+All five planted deviations caught, none invented
+Gold FLAG rows CC-02 ("5% bid guaranty"), CC-09 ("draft says BABA does not apply"), CC-12 ("written follow-up changed to 30 days"), CC-16 ("automatic time extension"), CC-17 ("flat $10,000/day rate") — all detected at the exact expected severity (High, Critical, High, Medium, Medium).
+
+The two decoy paraphrase rows the labels flag as benign were both handled correctly: CC-03 gold rationale "Certification paraphrase only." and CC-07 "License language reorganized without changing requirement." — both were called NO_FLAG/Info independently. The four DOES_NOT_APPLY rows (CC-08, CC-14, CC-15, CC-18) also matched, so no absent clause was flagged where its applicability precondition failed.
+
+Two notes
+The 35% not covered by labels — Development_Labels.csv has no expected governing_document or evidence column, so precedence resolution (20%) and evidence correctness (15%) can't be scored automatically. I audited both from the submission's own fields: every governing-document assignment traces to the document that actually carries the clause, and all five FLAG quotations are verbatim from the extracted PDF text and align with the gold rationales.
+Confidence was under-calibrated on three rows — CC-07 (0.72), CC-10 (0.75) and CC-05 (0.78) were the lowest-confidence rows and all three proved correct. The uncertainty came from incorporation-by-reference wording ("the reference period", "the same reference deadlines"), which the gold labels confirm is benign. No row was wrong at high confidence.
+Two new files attached: the 18-row side-by-side comparison CSV and the scorecard.
