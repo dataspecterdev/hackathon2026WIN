@@ -1,0 +1,19 @@
+requirement_id,predicted_applicability,expected_applicability,applicability_match,predicted_label,expected_label,label_match,predicted_severity,expected_severity,severity_match,predicted_governing_document,expected_rationale,row_result
+CC-01,APPLIES,APPLIES,MATCH,FLAG,FLAG,MATCH,Critical,Critical,MATCH,Proposal_and_General_Notices-ee35b089.pdf,FHWA-1273 referenced only; attachment absent,FULL MATCH
+CC-02,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Proposal_and_General_Notices-ee35b089.pdf,No material deviation present.,FULL MATCH
+CC-03,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Proposal_and_General_Notices-ee35b089.pdf,Certification wording/capitalization changed only.,FULL MATCH
+CC-04,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Addendum_B-6867ca88.pdf,Proposal says 75% bonds; Addendum 2 explicitly revises to 100%.,FULL MATCH
+CC-05,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,General_Conditions-863fe3dd.pdf,No material deviation present.,FULL MATCH
+CC-06,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Proposal_and_General_Notices-ee35b089.pdf,No material deviation present.,FULL MATCH
+CC-07,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Proposal_and_General_Notices-ee35b089.pdf,No material deviation present.,FULL MATCH
+CC-08,APPLIES,APPLIES,MATCH,FLAG,FLAG,MATCH,High,High,MATCH,Proposal_and_General_Notices-ee35b089.pdf,proposal acknowledges Addenda 1-2 but Addendum 3 is issued,FULL MATCH
+CC-09,APPLIES,APPLIES,MATCH,FLAG,FLAG,MATCH,Critical,Critical,MATCH,Proposal_and_General_Notices-ee35b089.pdf,draft says Buy America/BABA does not apply,FULL MATCH
+CC-10,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,General_Conditions-863fe3dd.pdf,No material deviation present.,FULL MATCH
+CC-11,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,General_Conditions-863fe3dd.pdf,No material deviation present.,FULL MATCH
+CC-12,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Addendum_C-3d004e54.pdf,Proposal says 30-day follow-up; Addendum 3 revises to 7 days.,FULL MATCH
+CC-13,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Proposal_and_General_Notices-ee35b089.pdf,Audit clause paraphrased but keeps scope and 3-year retention.,FULL MATCH
+CC-14,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,General_Conditions-863fe3dd.pdf,No material deviation present.,FULL MATCH
+CC-15,DOES_NOT_APPLY,DOES_NOT_APPLY,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Project_Metadata-b5458584.json,Requirement does not apply under supplied project metadata.,FULL MATCH
+CC-16,APPLIES,APPLIES,MATCH,FLAG,FLAG,MATCH,Medium,Medium,MATCH,General_Conditions-863fe3dd.pdf,automatic extension for any delay without reference conditions,FULL MATCH
+CC-17,APPLIES,APPLIES,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Special_Provisions-14ccd2c2.pdf,No material deviation present.,FULL MATCH
+CC-18,DOES_NOT_APPLY,DOES_NOT_APPLY,MATCH,NO_FLAG,NO_FLAG,MATCH,Info,Info,MATCH,Project_Metadata-b5458584.json,Requirement does not apply under supplied project metadata.,FULL MATCH
