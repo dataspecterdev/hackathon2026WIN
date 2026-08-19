@@ -1,0 +1,23 @@
+Report generated: DEV-PINE-GROVE_CC_Review_Report.csv — 18 rows (one per criterion), 15 columns exactly matching the submission schema1.
+
+Package reviewed: DEV-PINE-GROVE — Pine Grove Pavement Marking Maintenance. Federal aid: No; Buy America/BABA: No; assumed contract value $480,000; issued addenda: None; subcontracting planned: Yes; claim event: No; delay event: Yes; changed-work event: Yes.
+
+Severity summary (challenge taxonomy only)2: 0 Critical · 5 High · 2 Medium · 0 Low · 11 Info (of which 4 DOES_NOT_APPLY).
+
+Findings (7 FLAG)
+
+ID	Requirement	Sev	Draft text	Reference benchmark
+CC-02	Proposal guaranty / bid bond	High	"Bid security equal to five percent (5%) of the total bid price is sufficient" (Proposal, p.1)	10% of total bid price — DelDOT 102.83
+CC-03	Non-collusive bidding certification	High	"Submission of the certification is encouraged but optional"	Signed certification required — DelDOT 102.15
+CC-06	Contractor Registration Act	High	"Covered work may begin before registration… completed within thirty (30) days after field work starts"	Registration before performing covered work — 19 Del. C. § 3604
+CC-07	DE business / sub licenses	High	"Bidder license evidence is not required with the proposal; subcontractor license copies may be provided sixty (60) days after engagement"	Prime license with proposal; sub licenses within 30 days of contract entry, or 10 days if hired >20 days after entry — 29 Del. C. § 6967
+CC-11	Written change process	High	"Oral direction… immediately modifies scope, price, or time even if never reduced to writing" (Gen. Conditions)	Written process required; oral direction alone insufficient — DelDOT 104.2
+CC-13	Right to audit / retention	Medium	"Only prime-contractor records are subject to audit… retained for one (1) year after final payment"	Prime and subcontractor records; three years after final payment
+CC-17	Liquidated damages	Medium	"$10,000 per calendar day… regardless of contract value or governing schedule" (Special Provisions)	Section 108.9 schedule/rate logic for the applicable contract value and time basis
+Not applicable (4): CC-01 (FHWA-1273 — non-federal-aid), CC-08 (no addenda/Q&A issued), CC-09 (Buy America/BABA marked "No"), CC-15 (claim_event = No).
+
+No flag, equivalent wording (7): CC-04 (bonds at 100%), CC-05, CC-10 (precedence), CC-12, CC-14 (subletting), CC-16 (time extensions), CC-18 (compensation for changes).
+
+Precedence note: No addenda exist, so no supersession analysis was triggered. Under DelDOT 105.6 the Special Provisions LD clause (CC-17) would outrank the Standard Specifications schedule it overrides — that raises rather than reduces review priority.
+
+Lower-confidence rows flagged for reviewer attention: CC-14 (0.70) and CC-12 (0.72), where the draft incorporates requirements by reference rather than restating the 50% self-performance threshold and 7-calendar-day follow-up. These are evidence-based challenge-severity signals only, not approval, legal, or procurement conclusions.
