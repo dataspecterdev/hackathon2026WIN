@@ -1,0 +1,19 @@
+Report generated: VAL-OAK-HOLLOW_CC_Review_Submission.csv — 18 rows (one per CC criterion), 15 columns matching Submission_Schema.csv1 exactly.
+
+Package: VAL-OAK-HOLLOW — Oak Hollow Federal-Aid Roadway Improvements; federal_aid = Yes; Buy America/BABA = Yes; assumed contract value $5,100,000; issued addenda: Addendum 1, Addendum 2, Addendum 3; subcontracting/claim/delay/changed-work events all Yes. All 18 criteria were assessed APPLIES; none marked DOES_NOT_APPLY.
+
+Severity summary: 5 FLAG (2 Critical, 2 High, 1 Medium) / 13 NO_FLAG (Info)2​3
+
+ID	Finding	Sev	Governing doc	Evidence
+CC-01	FHWA-1273 incorporated by reference only	Critical	Proposal & General Notices p.1	"FHWA-1273 is incorporated by reference. No FHWA-1273 attachment is included in this package." vs. requirement of physical inclusion (FHWA-1273 I.1)
+CC-09	Buy America/BABA disclaimed on a covered project	Critical	Proposal & General Notices p.1	"Domestic-content requirements do not apply to this project" — contradicts metadata and the same document's own project summary (BABA = Yes)
+CC-08	Addenda currency defeated	High	Proposal & General Notices p.1	"Only the Addenda expressly listed in the original proposal need be acknowledged; later issued Addenda may be disregarded" — conflicts with the operative Addenda B and C in this package
+CC-14	Subletting limits inverted	High	General Conditions p.1	"Up to eighty percent (80%) … without Department approval, and the prime is not responsible for subcontractor performance" vs. DelDOT 108.1: prime self-performs ≥50% of the total original contract price (excluding specialty items), written consent required, responsibility not relieved
+CC-17	Unsupported flat liquidated-damages rate	Medium	Special Provisions p.1	"$10,000 per calendar day … regardless of contract value or governing schedule" vs. DelDOT 108.9 schedule/rate logic for a $5,100,000 contract
+Precedence resolutions (flag suppressed — no finding):
+
+CC-04 Bonds: General Conditions stated 75% coverage; Addendum C expressly revises the named provision to "one hundred percent (100%) of the contract price, subject to the referenced surety conditions" — matches DelDOT 103.5 benchmark. Superseded 75% text should still be conformed out.
+CC-12 Change notification: General Conditions allowed written follow-up "within thirty (30) calendar days"; Addendum B replaces it with timely written notice and reference follow-up within the stated period, restoring the DelDOT 104.3 7-calendar-day benchmark. Addendum A makes no changes.
+Equivalence calls (Info, no escalation): CC-02 10% bid security matches; CC-13 "36 months following final payment" = the three-year retention benchmark; CC-03, CC-06, CC-10, CC-11, CC-15, CC-16, CC-18 are harmless paraphrases retaining the reference obligations. Lower-confidence Info rows worth human confirmation: CC-07 (0.72 — 30-day/10-day/20-day license timing carried only by cross-reference), CC-15 (0.75), CC-05 (0.78).
+
+These are challenge-severity signals with cited evidence for human review, not approval, legal, or procurement conclusions.
