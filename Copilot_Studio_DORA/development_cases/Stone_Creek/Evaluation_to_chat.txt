@@ -1,0 +1,30 @@
+Comparison complete. Two new deliverables were written alongside the original report.
+
+Scope
+The generated report was matched against the 18 DEV-STONE-CREEK rows in Development_Labels-afa8c9a9.csv (108 rows total, 6 packages; the other 90 rows belong to DEV-PINE-GROVE, DEV-HARBOR-CROSSING, DEV-NORTHFIELD, DEV-MAPLE-RIDGE, DEV-RIVERBEND and are out of scope). All 18 requirement IDs joined 1:1 — no unmatched rows on either side.
+
+Weighted scorecard — 94.00 / 100
+Metric	Weight	Result	Points
+Applicability accuracy	20%	18/18 (100%)	20.00
+Finding detection (precision + recall)	25%	P 0.750 / R 1.000 / F1 0.857	21.43
+Cross-document precedence resolution	20%	2/2 (100%)	20.00
+Semantic deviation discrimination	15%	14/16 (87.5%)	13.13
+Evidence and citation correctness	15%	18/18 (100%)	15.00
+Severity agreement	5%	16/18 (88.9%)	4.44
+TOTAL	100%		94.00
+Confusion matrix
+TP = 6, FP = 2, FN = 0, TN = 10 — label accuracy 16/18 (88.9%).
+
+All 6 gold findings caught, with exact severity on every one (6/6): CC-05 High, CC-11 High, CC-14 High (gold rationale "80% subcontracting allowed without approval and prime responsibility weakened"), CC-15 Medium, CC-17 Medium, CC-18 Medium. Recall = 1.000, zero missed deviations.
+Precedence rows both correct: CC-04 — gold "Proposal says 75% bonds; Addendum 1 revises to 100%" → predicted NO_FLAG/Info governing Addendum A; CC-10 — gold "Proposal states reverse hierarchy; Addendum 1 deletes/replaces it with the provided DelDOT hierarchy" → predicted NO_FLAG/Info governing Addendum A.
+Semantic-equivalence row correct: CC-09 — gold "BABA language paraphrased but applicability preserved" → predicted NO_FLAG/Info.
+The 2 discrepancies (both false positives, both Low)
+ID	Gold	Predicted	Gap
+CC-07	NO_FLAG / Info — "No material deviation present."	FLAG / Low	Over-flagged. The clause's deferral to "the reference timing stated in the applicable contract documents" incorporates the 30-day / 10-day / 20-day timing by reference; gold treats incorporation as preservation. Confidence was already the lowest in the set at 0.70.
+CC-08	NO_FLAG / Info — "No material deviation present."	FLAG / Low	Over-flagged. The "Addendum 1" vs. "Addendum A" designation mismatch is a labeling artifact, not an addenda-currency failure; gold reserves CC-08 FLAG for genuinely ignored addenda (see DEV-MAPLE-RIDGE CC-08 High, "proposal acknowledgment omits issued Addendum 1"). Confidence was 0.72.
+Both errors are the false-positive-burden pattern the Info level is designed to test ("Do not escalate"), and both were flagged Low rather than High/Medium, so severity distance is only 1 level in each case. No under-detection occurred: the report has zero false negatives and zero severity errors on real findings.
+
+Deliverables:
+
+DEV-STONE-CREEK_Evaluation_Comparison.csv — row-by-row gold vs. predicted with match flags and TP/FP/TN/FN outcome
+DEV-STONE-CREEK_Evaluation_Scorecard.csv — weighted metric scoring with supporting evidence
