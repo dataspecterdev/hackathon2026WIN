@@ -1,0 +1,30 @@
+The generated report matches the gold labels on every row. Comparison artifact: /app/created/DEV-RIVERBEND_Evaluation_Comparison.csv.
+
+Scope
+Development_Labels.csv contains 114 rows across 6 packages; the relevant subset is the 18 DEV-RIVERBEND rows (Package_ID = DEV-RIVERBEND), matched 1:1 against the 18 rows in DEV-RIVERBEND_CC_Review_Report.csv. Other packages (DEV-PINE-GROVE, DEV-HARBOR-CROSSING, DEV-STONE-CREEK, DEV-NORTHFIELD, DEV-MAPLE-RIDGE) are out of scope and excluded.
+
+Row-level agreement — 18/18 MATCH
+Req	Expected	Predicted	Result
+CC-01…CC-11, CC-13, CC-14, CC-17	APPLIES / NO_FLAG / Info	identical	MATCH (14 rows)
+CC-12	APPLIES / FLAG / High	APPLIES / FLAG / High	MATCH
+CC-15	APPLIES / FLAG / Medium	APPLIES / FLAG / Medium	MATCH
+CC-16	APPLIES / FLAG / Medium	APPLIES / FLAG / Medium	MATCH
+CC-18	APPLIES / FLAG / Medium	APPLIES / FLAG / Medium	MATCH
+Confusion matrix: TP = 4, FP = 0, FN = 0, TN = 14.
+
+Scoring against Evaluation_Criteria.csv
+Metric	Weight	Score	Weighted	Basis
+Applicability accuracy	20%	18/18 = 100%	20.0	All rows APPLIES; expected labels also APPLIES for all 18. No absent non-applicable clause was over-flagged.
+Finding detection (precision + recall)	25%	P = 1.00, R = 1.00, F1 = 1.00	25.0	All 4 expected findings detected; zero unsupported flags.
+Cross-document precedence resolution	20%	1/1 = 100%	20.0	CC-11 gold rationale: "Proposal permits oral change direction; Addendum 1 replaces it with the required written-process language." Report set governing_document = Addendum_A, NO_FLAG/Info, citing both superseded and superseding text.
+Semantic deviation discrimination	15%	14/14 NO_FLAG rows correct	15.0	CC-10 gold "Equivalent hierarchy wording" scored Info; paraphrase-only rows CC-03, CC-05, CC-07, CC-14 also correctly not flagged.
+Evidence and citation correctness	15%	18/18 rows populated	15.0	Every row carries file + page/heading draft location, verbatim draft evidence, reference_id and reference section (e.g. CC-12 → DelDOT 104.3, 7 calendar days).
+Severity agreement	5%	18/18 = 100%	5.0	Exact match on 1 High, 3 Medium, 14 Info.
+Total	100%	—	100.0	—
+Rationale alignment on the four findings
+CC-12 — gold: "change follow-up changed to 30 days"; report cited the 30-calendar-day permissive follow-up against the DelDOT 104.3 7-calendar-day requirement. Aligned, High.
+CC-15 — gold: "claim deadline/workflow materially extended"; report cited 60-day general notice / optional documentation vs. the 30-calendar-day written claim. Aligned, Medium.
+CC-16 — gold: "automatic extension without reference conditions"; report cited automatic day-for-day extension vs. excusable-delay, timely-notice, critical-path prerequisites. Aligned, Medium.
+CC-18 — gold: "fixed 25% markup replaces reference change-pricing workflow"; report cited the 25% markup vs. the unit-price → negotiated → force-account sequence. Aligned, Medium.
+Notes on residual risk
+The three lower-confidence NO_FLAG rows flagged for human attention in the report — CC-14 (0.65), CC-07 (0.70), CC-05 (0.72) — are all confirmed correct by the gold labels ("No material deviation present."), so the conservative treatment of incorporated-by-reference thresholds did not cost accuracy on this package. No corrections to the submitted report are required.
