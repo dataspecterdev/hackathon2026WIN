@@ -1,0 +1,22 @@
+Report complete for package DEV-NORTHFIELD — Northfield Pavement and Traffic Systems Rehabilitation. All 18 CC criteria evaluated across the 4 package documents: 14 APPLIES / 4 DOES_NOT_APPLY, 5 FLAG / 13 NO_FLAG.
+
+Findings
+Severity	ID	Requirement	Deviation
+Critical	CC-09	Buy America / BABA	Proposal clause: "Domestic-content requirements do not apply to this project" — contradicts buy_america_baba_applicable: Yes and the same document's own summary line "Buy America/BABA applicable — Yes"; certification language omitted
+High	CC-02	Proposal guaranty	"Bid security equal to five percent (5%)" vs. DelDOT 102.8 required 10% — on $1,750,000 that is ~$87,500 instead of ~$175,000
+High	CC-12	Change notification	Follow-up 7 → 30 calendar days, mandatory "shall" → permissive "may", and immediate oral+written notice / "proceed only after written direction" both omitted (DelDOT 104.3)
+Medium	CC-16	Time extensions	"Any delay automatically extends contract time… without further demonstration or timely supporting notice" — eliminates all three DelDOT 108.7 conditions (excusable delay, timely written notice, critical-path impact)
+Medium	CC-17	Liquidated damages	Flat $10,000 per calendar day "regardless of contract value or governing schedule" replaces the DelDOT 108.9 value-scaled schedule
+No finding (Info)
+CC-01 (FHWA-1273 physically attached as a discrete document), CC-03, CC-04 (100% bond coverage — matches), CC-05, CC-06, CC-07, CC-10, CC-11, CC-13 (3-year retention after final payment — matches).
+
+CC-05, CC-07 and CC-10 satisfy the reference by incorporating it ("the reference period", "the same reference deadlines") rather than restating the explicit 20-day, 30-day/10-day-20-day, and 105.6 sequence — lowest confidence in the set (0.78 / 0.72 / 0.75) and worth human confirmation.
+
+Not applicable
+CC-08 (issued_addenda: []), CC-14 (subcontracting_planned: No), CC-15 (claim_event: No), CC-18 (changed_work_event: No). Absent clauses were not flagged where the applicability precondition failed.
+
+Precedence: no addenda or Q&A were issued, so nothing in the package is superseded — all five findings stand against the original text. CC-17 sits in Special Provisions, which outrank the Standard Specifications under DelDOT 105.6, but the invented universal flat rate is flagged regardless per the CC-17 rule. CC-09 is an intra-document conflict that precedence cannot cure.
+
+Watch item: DelDOT 105.15 relies on 104.3 notice compliance, so the CC-12 finding would become material to CC-15 if a claim event later arises.
+
+Two deliverables attached: the 18-row submission CSV (15 columns in schema order, all fields populated) and the full narrative report. These are evidence and severity signals for human review — no approval, award, legal, or procurement conclusion is made.
