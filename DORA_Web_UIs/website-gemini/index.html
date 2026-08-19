@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DORA · Gemini Agent — DelDOT Contract Review</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="/deldot-logo.webp" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-brand">
+        <img class="brand-logo" src="/deldot-logo.webp" alt="DelDOT" />
+        <div class="brand-text">
+          <span class="brand-mark">DORA</span>
+          <span class="brand-sub">Gemini Agent</span>
+        </div>
+        <span id="health-dot" class="health-dot" title="Checking server…"></span>
+      </div>
+
+      <button id="new-chat" class="btn-primary" type="button">
+        <span class="plus">+</span> New review
+      </button>
+
+      <div class="sidebar-section grow">
+        <span class="sidebar-label">History</span>
+        <nav id="chat-list" class="chat-list" aria-label="Chat history"></nav>
+      </div>
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">Upload a package</span>
+        <form id="upload-form">
+          <input
+            id="upload-package-id"
+            type="text"
+            maxlength="64"
+            placeholder="Package ID (optional)"
+          />
+          <label class="upload-drop" id="upload-drop" for="upload-files">
+            <span id="upload-drop-text">Choose package folder…</span>
+          </label>
+          <input id="upload-files" type="file" multiple webkitdirectory directory hidden />
+          <button id="upload-submit" type="submit" class="btn-ghost" disabled>Upload</button>
+        </form>
+        <p class="sidebar-hint">
+          The folder should contain <code>Project_Metadata.json</code> (required),
+          an optional <code>Document_Index.csv</code>, and its PDFs.
+        </p>
+        <p id="upload-status" class="upload-status" hidden></p>
+      </div>
+
+      <div class="sidebar-foot">
+        <p><strong>Decision support only.</strong> DORA flags provisions for human
+        review. It does not issue approval, award, or legal determinations.</p>
+        <p style="margin-top: 6px;">
+          Rules UI: <a href="http://localhost:8081" style="color: var(--accent)">localhost:8081</a>
+          · <a href="/widget.html" style="color: var(--accent)">Google widget version</a>
+        </p>
+      </div>
+    </aside>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <main class="chat">
+      <header class="chat-header">
+        <button id="menu-btn" class="icon-btn" type="button" aria-label="Toggle sidebar">☰</button>
+        <div class="chat-title" id="chat-title">New review</div>
+        <span class="model-pill" id="model-pill" hidden></span>
+      </header>
+
+      <div id="messages" class="messages"></div>
+
+      <form id="composer" class="composer">
+        <textarea
+          id="composer-input"
+          rows="1"
+          placeholder="Review DEV-HARBOR-CROSSING against CC-04…"
+          autocomplete="off"
+        ></textarea>
+        <button id="composer-send" type="submit" aria-label="Send">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M3 11.5 21 3l-8.5 18-2.3-7.2L3 11.5z" fill="currentColor"/>
+          </svg>
+        </button>
+      </form>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

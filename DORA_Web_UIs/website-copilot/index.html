@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DORA · Copilot Agent — DelDOT Contract Review</title>
+  <link rel="icon" href="/deldot-logo.webp" />
+  <script crossorigin="anonymous" src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --panel: #ffffff;
+      --border: #dde1e6;
+      --text: #1c2230;
+      --text-muted: #5b6472;
+      --accent: #038387;
+      --accent-hover: #026e72;
+      --accent-soft: rgba(3, 131, 135, 0.08);
+      --bubble: #eef2f4;
+      --danger: #b3261e;
+      --ok: #1a7f37;
+      --radius: 12px;
+      --shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+      --shadow-lg: 0 6px 24px rgba(16, 24, 40, 0.14);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #12151a;
+        --panel: #1b1f26;
+        --border: #2b303a;
+        --text: #e7eaee;
+        --text-muted: #9aa3af;
+        --accent: #4ccfd4;
+        --accent-hover: #6adade;
+        --accent-soft: rgba(76, 207, 212, 0.1);
+        --bubble: #242a33;
+        --danger: #ff6b60;
+        --ok: #4bcc7c;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+        --shadow-lg: 0 6px 24px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.55;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ------------------------------------------------------------ sidebar */
+
+    .sidebar {
+      width: 264px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .side-brand { display: flex; align-items: center; gap: 10px; }
+    .side-brand img { width: 32px; height: 32px; object-fit: contain; }
+    .brand-mark { font-weight: 700; font-size: 16px; letter-spacing: 0.04em; color: var(--accent); line-height: 1.2; }
+    .brand-sub { font-size: 10.5px; color: var(--text-muted); }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 650;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background-color .15s ease, transform .15s ease, box-shadow .15s ease;
+    }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+    .btn-primary:active { transform: translateY(0); box-shadow: none; }
+
+    .side-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+    }
+
+    .project-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 60px;
+      overflow-y: auto;
+      margin: 0 -4px;
+      padding: 0 4px;
+    }
+    .project-empty { font-size: 12px; color: var(--text-muted); margin: 2px 0 0; }
+
+    .project {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background-color .15s ease, border-color .15s ease;
+    }
+    .project:hover { background: var(--accent-soft); }
+    .project.active {
+      background: var(--accent-soft);
+      border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+    .project-main { flex: 1; min-width: 0; }
+    .project-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .project.active .project-name { color: var(--accent); }
+    .project-meta { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+    .project-act {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1;
+      padding: 3px 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .15s ease, color .15s ease;
+    }
+    .project:hover .project-act, .project-act:focus-visible { opacity: 1; }
+    .project-act:hover { color: var(--accent); background: var(--accent-soft); }
+    .project-act.del:hover { color: var(--danger); background: rgba(179, 38, 30, 0.1); }
+
+    .side-foot {
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      font-size: 10.5px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .side-foot a { color: var(--accent); text-decoration: none; }
+    .side-foot a:hover { text-decoration: underline; }
+
+    /* --------------------------------------------------------------- main */
+
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      min-height: 50px;
+      z-index: 2;
+    }
+    .menu-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 15px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .chat-title {
+      font-size: 14px;
+      font-weight: 650;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .status-pill {
+      font-size: 10.5px;
+      font-weight: 650;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 999px;
+      padding: 3px 10px;
+      white-space: nowrap;
+    }
+    .status-pill.on { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, var(--border)); }
+
+    #webchat { flex: 1; min-height: 0; }
+
+    /* ------------------------------------------- webchat visual overrides */
+
+    #webchat .webchat__basic-transcript { background: var(--bg); }
+    #webchat .webchat__basic-transcript__scrollable { padding: 6px 0; }
+
+    /* answer typography: calm, readable, no shouting */
+    #webchat .webchat__bubble__content {
+      font-family: var(--font) !important;
+      font-size: 13.5px !important;
+      line-height: 1.65 !important;
+    }
+    #webchat .webchat__bubble__content h1,
+    #webchat .webchat__bubble__content h2,
+    #webchat .webchat__bubble__content h3,
+    #webchat .webchat__bubble__content h4 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 14px 0 6px;
+      line-height: 1.4;
+    }
+    #webchat .webchat__bubble__content h1:first-child,
+    #webchat .webchat__bubble__content h2:first-child,
+    #webchat .webchat__bubble__content h3:first-child { margin-top: 2px; }
+    #webchat .webchat__bubble__content p { margin: 0 0 9px; }
+    #webchat .webchat__bubble__content p:last-child { margin-bottom: 0; }
+    #webchat .webchat__bubble__content strong,
+    #webchat .webchat__bubble__content b { font-weight: 600; }
+    #webchat .webchat__bubble__content ul,
+    #webchat .webchat__bubble__content ol { margin: 4px 0 10px; padding-left: 20px; }
+    #webchat .webchat__bubble__content li { margin: 4px 0; }
+    #webchat .webchat__bubble__content code {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    #webchat .webchat__bubble__content pre {
+      background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      overflow-x: auto;
+    }
+    #webchat .webchat__bubble__content pre code { background: none; padding: 0; }
+    #webchat .webchat__bubble__content blockquote {
+      margin: 8px 0;
+      padding: 4px 12px;
+      border-left: 3px solid var(--accent);
+      background: var(--accent-soft);
+      border-radius: 0 8px 8px 0;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    #webchat .webchat__bubble__content table {
+      border-collapse: collapse;
+      font-size: 12px;
+      margin: 8px 0;
+      width: 100%;
+    }
+    #webchat .webchat__bubble__content th {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      text-align: left;
+      padding: 6px 9px;
+      border-bottom: 1px solid var(--border);
+      background: var(--accent-soft);
+    }
+    #webchat .webchat__bubble__content td {
+      padding: 6px 9px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      font-variant-numeric: tabular-nums;
+    }
+    #webchat .webchat__bubble__content tr:last-child td { border-bottom: none; }
+    #webchat .webchat__bubble__content hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 12px 0;
+    }
+    #webchat .webchat__bubble__content a { color: var(--accent); }
+
+    /* send box */
+    #webchat .webchat__send-box {
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+    }
+    #webchat .webchat__send-box-text-box__input { font-family: var(--font) !important; }
+
+    /* --------------------------------------------------------- suggestions */
+
+    #suggestions {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 62px;
+      z-index: 5;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      pointer-events: none;
+    }
+    #suggestions.show { pointer-events: auto; }
+    #suggestions .sq {
+      background: var(--panel);
+      color: var(--accent);
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+      border-radius: 999px;
+      padding: 6px 13px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .18s ease, transform .18s ease, border-color .15s ease, background-color .15s ease;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #suggestions.show .sq { opacity: 1; transform: translateY(0); }
+    #suggestions .sq:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+    /* -------------------------------------------------------- setup modal */
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: color-mix(in srgb, var(--bg) 65%, transparent);
+      backdrop-filter: blur(2px);
+      padding: 20px;
+    }
+    .setup {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      max-width: 520px;
+      width: 100%;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .setup h2 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 10px; }
+    .setup h2 img { width: 26px; height: 26px; }
+    .setup p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--text-muted); }
+    .setup code {
+      background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+      padding: 0 4px;
+      border-radius: 3px;
+      font-size: 11.5px;
+    }
+    .setup input {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 12px;
+      font-family: var(--font);
+    }
+    .setup input:focus { outline: none; border-color: var(--accent); }
+    .setup .row { display: flex; gap: 8px; }
+    .setup .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .setup .btn:hover { background: var(--accent-hover); }
+    .setup .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--border); }
+    .setup .err { color: var(--danger); font-size: 12px; }
+
+    /* toast */
+    .toast {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 70px;
+      z-index: 6;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 7px 14px;
+      font-size: 12px;
+      box-shadow: var(--shadow-lg);
+      color: var(--text-muted);
+    }
+    .toast.bad { color: var(--danger); }
+
+    /* ---------------------------------------------------------- responsive */
+
+    .backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 9;
+    }
+    .backdrop.show { display: block; }
+
+    @media (max-width: 800px) {
+      .menu-btn { display: block; }
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        transition: transform .25s cubic-bezier(.2,.8,.3,1);
+        box-shadow: var(--shadow-lg);
+        width: min(290px, 85vw);
+      }
+      .sidebar.open { transform: translateX(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-brand">
+        <img src="/deldot-logo.webp" alt="DelDOT" />
+        <div>
+          <div class="brand-mark">DORA</div>
+          <div class="brand-sub">Microsoft Copilot Agent</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="new-project" type="button">＋ New project</button>
+
+      <span class="side-label">Projects</span>
+      <nav class="project-list" id="project-list" aria-label="Projects"></nav>
+
+      <div class="side-foot">
+        <strong>Decision support only.</strong> DORA flags provisions for human review —
+        not approval, award, or legal determinations.<br />
+        <a href="http://localhost:8081">Rules UI 8081</a> ·
+        <a href="http://localhost:8082">Gemini UI 8082</a> ·
+        <a href="/iframe.html">iframe version</a>
+      </div>
+    </aside>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <main class="main">
+      <header class="chat-header">
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="Toggle sidebar">☰</button>
+        <div class="chat-title" id="chat-title">—</div>
+        <span class="status-pill" id="status-pill">connecting…</span>
+      </header>
+
+      <div id="webchat"></div>
+      <div id="suggestions"></div>
+      <span class="toast" id="toast" hidden></span>
+    </main>
+  </div>
+
+  <div class="overlay" id="setup-overlay" hidden>
+    <div class="setup">
+      <h2><img src="/deldot-logo.webp" alt="" /> Connect to the Copilot agent</h2>
+      <p>
+        This page needs a Direct Line <strong>token endpoint</strong> for your agent.
+        Get yours in <strong>Copilot Studio → your agent → Channels → Web app</strong>
+        (or <strong>Mobile app</strong>) — copy the <code>Token Endpoint</code> URL and
+        paste it below. If the channel asks about authentication, this page requires
+        <strong>No authentication</strong> (Settings → Security), then Publish.
+      </p>
+      <input id="token-input" type="url" placeholder="https://…environment.api.powerplatform.com/…/directline/token?api-version=…" />
+      <div class="row">
+        <button class="btn" id="token-save" type="button">Save &amp; connect</button>
+        <a class="btn ghost" href="/iframe.html">Use the iframe version instead</a>
+      </div>
+      <p class="err" id="setup-err" hidden></p>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const TOKEN_KEY = "dora_copilot_token_endpoint";
+    const STORE_KEY = "dora_copilot_projects_v1";
+    const ACTIVE_KEY = "dora_copilot_active_project_v1";
+    const DEFAULT_TOKEN_ENDPOINT =
+      "https://defaultcbc044cfdefc448784754df2b4b237.ca.environment.api.powerplatform.com" +
+      "/powervirtualagents/botsbyschema/cr61c_dora_Rzip0I/directline/token?api-version=2022-03-01-preview";
+
+    const SAMPLE_QUESTIONS = [
+      "Review the attached package against all 18 CC criteria and output the submission-schema rows.",
+      "Review the attached package against CC-04 (Performance and payment bonds).",
+      "Check CC-09 (Buy America / BABA) applicability for the attached package.",
+      "Which addenda are in the attached package, and did any supersede a base clause?",
+      "Explain the DelDOT 105.6 order of precedence.",
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const projectListEl = $("project-list");
+    const chatTitleEl = $("chat-title");
+    const statusPill = $("status-pill");
+    const suggestionsEl = $("suggestions");
+    const toastEl = $("toast");
+    const overlay = $("setup-overlay");
+    const tokenInput = $("token-input");
+    const tokenSave = $("token-save");
+    const setupErr = $("setup-err");
+    const sidebarEl = $("sidebar");
+    const backdropEl = $("backdrop");
+
+    let store = null;
+    let directLine = null;
+    let connecting = false;
+    let toastTimer = null;
+
+    // ------------------------------------------------------------ projects
+
+    function loadProjects() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(STORE_KEY));
+        if (raw && Array.isArray(raw.order) && raw.projects) return raw;
+      } catch { /* fresh start */ }
+      return { order: [], projects: {} };
+    }
+
+    let projects = loadProjects();
+    let activeId = localStorage.getItem(ACTIVE_KEY) || null;
+
+    function saveProjects() {
+      localStorage.setItem(STORE_KEY, JSON.stringify(projects));
+      localStorage.setItem(ACTIVE_KEY, activeId || "");
+    }
+
+    function createProject(name) {
+      const p = {
+        id: crypto.randomUUID(),
+        name: name || `Project ${projects.order.length + 1}`,
+        createdAt: Date.now(),
+        token: null,
+        conversationId: null,
+      };
+      projects.projects[p.id] = p;
+      projects.order.unshift(p.id);
+      activeId = p.id;
+      saveProjects();
+      return p;
+    }
+
+    function activeProject() {
+      if (!activeId || !projects.projects[activeId]) {
+        activeId = projects.order[0] || null;
+        if (!activeId) return createProject("Project 1");
+      }
+      return projects.projects[activeId];
+    }
+
+    function fmtDay(ts) {
+      const d = new Date(ts), t = new Date();
+      if (d.toDateString() === t.toDateString()) return "Today";
+      t.setDate(t.getDate() - 1);
+      if (d.toDateString() === t.toDateString()) return "Yesterday";
+      return d.toLocaleDateString([], { month: "short", day: "numeric" });
+    }
+
+    function renderProjects() {
+      projectListEl.innerHTML = "";
+      if (projects.order.length === 0) {
+        const p = document.createElement("p");
+        p.className = "project-empty";
+        p.textContent = "No projects yet.";
+        projectListEl.appendChild(p);
+        return;
+      }
+      projects.order.forEach((id) => {
+        const proj = projects.projects[id];
+        if (!proj) return;
+        const item = document.createElement("div");
+        item.className = `project${id === activeId ? " active" : ""}`;
+        item.tabIndex = 0;
+        item.setAttribute("role", "button");
+
+        const main = document.createElement("div");
+        main.className = "project-main";
+        const name = document.createElement("div");
+        name.className = "project-name";
+        name.textContent = proj.name;
+        const meta = document.createElement("div");
+        meta.className = "project-meta";
+        meta.textContent = fmtDay(proj.createdAt) + (proj.conversationId ? " · history saved" : "");
+        main.appendChild(name);
+        main.appendChild(meta);
+        item.appendChild(main);
+
+        const ren = document.createElement("button");
+        ren.className = "project-act";
+        ren.textContent = "✎";
+        ren.title = "Rename (use the package id, e.g. DEV-MAPLE-RIDGE)";
+        ren.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const n = prompt("Project name (tip: use the package id)", proj.name);
+          if (n && n.trim()) {
+            proj.name = n.trim().slice(0, 60);
+            saveProjects();
+            renderProjects();
+            if (id === activeId) chatTitleEl.textContent = proj.name;
+          }
+        });
+        item.appendChild(ren);
+
+        const del = document.createElement("button");
+        del.className = "project-act del";
+        del.textContent = "×";
+        del.title = "Delete project";
+        del.addEventListener("click", (e) => {
+          e.stopPropagation();
+          delete projects.projects[id];
+          projects.order = projects.order.filter((x) => x !== id);
+          if (activeId === id) activeId = projects.order[0] || null;
+          if (!activeId) createProject("Project 1");
+          saveProjects();
+          renderProjects();
+          openProject(activeProject());
+        });
+        item.appendChild(del);
+
+        const open = () => {
+          if (id === activeId || connecting) return;
+          activeId = id;
+          saveProjects();
+          renderProjects();
+          openProject(proj);
+          closeSidebar();
+        };
+        item.addEventListener("click", open);
+        item.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+        });
+        projectListEl.appendChild(item);
+      });
+    }
+
+    // ------------------------------------------------------------- webchat
+
+    function toast(text, bad) {
+      clearTimeout(toastTimer);
+      toastEl.hidden = !text;
+      toastEl.textContent = text;
+      toastEl.className = `toast${bad ? " bad" : ""}`;
+      if (text) toastTimer = setTimeout(() => (toastEl.hidden = true), 4500);
+    }
+
+    function setStatus(text, on) {
+      statusPill.textContent = text;
+      statusPill.classList.toggle("on", Boolean(on));
+    }
+
+    function styleOptions() {
+      const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+      return {
+        accent: dark ? "#4ccfd4" : "#038387",
+        backgroundColor: dark ? "#12151a" : "#f4f5f7",
+        bubbleBackground: dark ? "#242a33" : "#ffffff",
+        bubbleTextColor: dark ? "#e7eaee" : "#1c2230",
+        bubbleBorderColor: dark ? "#2b303a" : "#dde1e6",
+        bubbleBorderRadius: 12,
+        bubbleFromUserBackground: dark ? "#0e6b70" : "#038387",
+        bubbleFromUserTextColor: "#ffffff",
+        bubbleFromUserBorderColor: "transparent",
+        bubbleFromUserBorderRadius: 12,
+        botAvatarInitials: "DO",
+        botAvatarBackgroundColor: dark ? "#0e6b70" : "#038387",
+        userAvatarInitials: "You",
+        userAvatarBackgroundColor: dark ? "#3a4250" : "#5b6472",
+        avatarSize: 30,
+        paddingRegular: 12,
+        sendBoxBackground: dark ? "#1b1f26" : "#ffffff",
+        sendBoxTextColor: dark ? "#e7eaee" : "#1c2230",
+        sendBoxHeight: 52,
+        sendBoxButtonColor: dark ? "#4ccfd4" : "#038387",
+        hideUploadButton: false,
+        timestampColor: dark ? "#9aa3af" : "#5b6472",
+        transcriptOverlayButtonBackground: dark ? "#242a33" : "#ffffff",
+      };
+    }
+
+    async function fetchToken(endpoint) {
+      const resp = await fetch(endpoint);
+      if (!resp.ok) throw new Error(`token endpoint returned ${resp.status}`);
+      const data = await resp.json();
+      if (!data.token) throw new Error("token endpoint returned no token");
+      return data.token;
+    }
+
+    async function openProject(project, isRetryWithFresh) {
+      connecting = true;
+      chatTitleEl.textContent = project.name;
+      setStatus("connecting…");
+      $("webchat").innerHTML = "";
+      suggestionsEl.classList.remove("show");
+
+      const endpoint = localStorage.getItem(TOKEN_KEY) || DEFAULT_TOKEN_ENDPOINT;
+      try {
+        let dlOptions;
+        if (project.token && project.conversationId && !isRetryWithFresh) {
+          // resume the saved conversation — Direct Line replays its history
+          dlOptions = { token: project.token, conversationId: project.conversationId, watermark: "0" };
+        } else {
+          const token = await fetchToken(endpoint);
+          project.token = token;
+          project.conversationId = null;
+          saveProjects();
+          dlOptions = { token };
+        }
+
+        directLine = window.WebChat.createDirectLine(dlOptions);
+
+        store = window.WebChat.createStore({}, ({ dispatch }) => (next) => (action) => {
+          if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
+            connecting = false;
+            setStatus("connected", true);
+            // remember the conversation so this project's history can resume
+            if (!project.conversationId && directLine.conversationId) {
+              project.conversationId = directLine.conversationId;
+              saveProjects();
+              renderProjects();
+              dispatch({
+                type: "WEB_CHAT/SEND_EVENT",
+                payload: { name: "startConversation", type: "event" },
+              });
+            }
+          }
+          if (action.type === "DIRECT_LINE/CONNECT_REJECTED") {
+            connecting = false;
+            if (!isRetryWithFresh && project.conversationId) {
+              // saved conversation expired — start a fresh one for this project
+              toast("Saved history expired — starting a fresh conversation", true);
+              openProject(project, true);
+            } else {
+              setStatus("connection failed");
+              overlay.hidden = false;
+            }
+          }
+          return next(action);
+        });
+
+        window.WebChat.renderWebChat(
+          { directLine, store, locale: "en-US", styleOptions: styleOptions() },
+          $("webchat")
+        );
+        overlay.hidden = true;
+      } catch (err) {
+        connecting = false;
+        setStatus("not connected");
+        overlay.hidden = false;
+        if (localStorage.getItem(TOKEN_KEY)) {
+          setupErr.hidden = false;
+          setupErr.textContent = `Connection failed: ${err.message}`;
+          tokenInput.value = localStorage.getItem(TOKEN_KEY);
+        }
+      }
+    }
+
+    // --------------------------------------------------------- suggestions
+
+    SAMPLE_QUESTIONS.forEach((q, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "sq";
+      b.textContent = q;
+      b.title = q;
+      b.style.transitionDelay = `${i * 30}ms`;
+      b.addEventListener("pointerdown", (e) => {
+        e.preventDefault(); // keep the send box focused
+        if (store) store.dispatch({ type: "WEB_CHAT/SET_SEND_BOX", payload: { text: q } });
+        suggestionsEl.classList.remove("show");
+      });
+      suggestionsEl.appendChild(b);
+    });
+
+    function isSendBox(el) {
+      return el && el.matches?.("input[type='text'], textarea") && el.closest("#webchat");
+    }
+    document.addEventListener("focusin", (e) => {
+      if (isSendBox(e.target)) suggestionsEl.classList.add("show");
+    });
+    document.addEventListener("input", (e) => {
+      if (isSendBox(e.target) && e.target.value) suggestionsEl.classList.remove("show");
+    });
+    document.addEventListener("pointerdown", (e) => {
+      if (!e.target.closest("#suggestions") && !isSendBox(e.target)) {
+        suggestionsEl.classList.remove("show");
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") suggestionsEl.classList.remove("show");
+    });
+
+    // -------------------------------------------------------------- events
+
+    $("new-project").addEventListener("click", () => {
+      if (connecting) return;
+      const n = prompt("Project name (tip: use the package id, e.g. DEV-MAPLE-RIDGE)", "");
+      const p = createProject(n && n.trim() ? n.trim().slice(0, 60) : "");
+      renderProjects();
+      openProject(p);
+      closeSidebar();
+    });
+
+    tokenSave.addEventListener("click", async () => {
+      const url = tokenInput.value.trim();
+      if (!url) return;
+      setupErr.hidden = true;
+      tokenSave.textContent = "Connecting…";
+      try {
+        await fetchToken(url); // validate before saving
+        localStorage.setItem(TOKEN_KEY, url);
+        overlay.hidden = true;
+        openProject(activeProject(), true);
+      } catch (err) {
+        setupErr.hidden = false;
+        setupErr.textContent = `Connection failed: ${err.message}`;
+      } finally {
+        tokenSave.textContent = "Save & connect";
+      }
+    });
+
+    function closeSidebar() {
+      sidebarEl.classList.remove("open");
+      backdropEl.classList.remove("show");
+    }
+    $("menu-btn").addEventListener("click", () => {
+      sidebarEl.classList.toggle("open");
+      backdropEl.classList.toggle("show", sidebarEl.classList.contains("open"));
+    });
+    backdropEl.addEventListener("click", closeSidebar);
+
+    // ---------------------------------------------------------------- boot
+
+    renderProjects();
+    openProject(activeProject());
+  </script>
+</body>
+</html>

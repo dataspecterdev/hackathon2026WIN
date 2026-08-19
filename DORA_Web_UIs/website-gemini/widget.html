@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DORA · Gemini Agent — DelDOT Contract Review</title>
+  <link rel="icon" href="/deldot-logo.webp" />
+
+  <!-- Google Chat Messenger SDK (renders the chat widget, bottom-right) -->
+  <script defer
+    src="https://www.gstatic.com/chat-messenger/sdk/prod/v1.16/chat-messenger.js">
+  </script>
+  <link rel="stylesheet" href="https://www.gstatic.com/chat-messenger/sdk/prod/v1.16/themes/chat-messenger-default.css">
+  <link rel="stylesheet" href="https://www.gstatic.com/chat-messenger/sdk/prod/v1.16/themes/chat-messenger-layout.css">
+
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --panel: #ffffff;
+      --border: #dde1e6;
+      --text: #1c2230;
+      --text-muted: #5b6472;
+      --accent: #6d3fc8;
+      --accent-hover: #5f35b3;
+      --shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+      --shadow-lg: 0 4px 16px rgba(16, 24, 40, 0.08);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #12151a;
+        --panel: #1b1f26;
+        --border: #2b303a;
+        --text: #e7eaee;
+        --text-muted: #9aa3af;
+        --accent: #a98ae8;
+        --accent-hover: #b89ded;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+        --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.45);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .topbar img { width: 34px; height: 34px; object-fit: contain; }
+    .brand-mark { font-weight: 700; font-size: 17px; letter-spacing: 0.04em; color: var(--accent); }
+    .brand-sub { font-size: 12px; color: var(--text-muted); }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 20px 120px; /* bottom space so the chat bubble never overlaps content */
+      gap: 12px;
+    }
+    .hero-logo { width: 72px; height: 72px; object-fit: contain; }
+    h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.01em; }
+    .sub { margin: 0; max-width: 520px; color: var(--text-muted); font-size: 14px; }
+
+    .hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      padding: 8px 16px;
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+      background: color-mix(in srgb, var(--accent) 7%, transparent);
+      color: var(--accent);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .label {
+      margin-top: 22px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      max-width: 640px;
+    }
+    .chip {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 7px 15px;
+      font-size: 12.5px;
+      font-family: var(--font);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: border-color .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease;
+    }
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+    .chip.copied { border-color: var(--accent); color: var(--accent); }
+
+    .note {
+      margin-top: 26px;
+      max-width: 520px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .upload-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: min(440px, 92vw);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+    .upload-card input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 12.5px;
+      font-family: var(--font);
+    }
+    .upload-card input[type="text"]:focus { outline: none; border-color: var(--accent); }
+    .upload-drop {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 1.5px dashed var(--border);
+      border-radius: 7px;
+      padding: 15px 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color .15s ease, color .15s ease, background-color .15s ease;
+    }
+    .upload-drop:hover, .upload-drop.dragover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 5%, transparent);
+    }
+    .upload-card button[type="submit"] {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background-color .15s ease, opacity .15s ease;
+    }
+    .upload-card button[type="submit"]:hover { background: var(--accent-hover); }
+    .upload-card button[type="submit"]:disabled { opacity: 0.45; cursor: not-allowed; }
+    .upload-hint { margin: 0; font-size: 11px; line-height: 1.5; color: var(--text-muted); }
+    .upload-hint code {
+      background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+      padding: 0 3px;
+      border-radius: 3px;
+      font-size: 10.5px;
+    }
+    .upload-status { margin: 0; font-size: 11.5px; }
+    .upload-status.ok { color: #1a7f37; }
+    .upload-status.bad { color: #b3261e; }
+    .upload-status.busy { color: var(--text-muted); }
+    @media (prefers-color-scheme: dark) {
+      .upload-status.ok { color: #4bcc7c; }
+      .upload-status.bad { color: #ff6b60; }
+    }
+
+    footer {
+      padding: 12px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <img src="/deldot-logo.webp" alt="DelDOT" />
+    <div>
+      <div class="brand-mark">DORA</div>
+      <div class="brand-sub">Gemini Enterprise Agent</div>
+    </div>
+  </header>
+
+  <main>
+    <img class="hero-logo" src="/deldot-logo.webp" alt="" />
+    <h1>DelDOT Contract Review — Gemini Agent</h1>
+    <p class="sub">
+      Reviews contract packages against the 18-item CC reference checklist, run by the
+      hosted Gemini Enterprise agent and its configured tools.
+    </p>
+    <span class="hint">Open the chat bubble in the corner to start ↘</span>
+
+    <div class="label">Sample questions — click to copy</div>
+    <div class="chips" id="chips">
+      <button class="chip">Review DEV-HARBOR-CROSSING against all 18 CC criteria.</button>
+      <button class="chip">Review DEV-HARBOR-CROSSING against CC-04 (Performance and payment bonds).</button>
+      <button class="chip">Review VAL-OAK-HOLLOW against CC-09 (Buy America / BABA applicability).</button>
+      <button class="chip">Which addenda apply to DEV-HARBOR-CROSSING, and did any supersede a base clause?</button>
+      <button class="chip">Explain the DelDOT 105.6 order of precedence.</button>
+    </div>
+
+    <div class="label">Upload a package</div>
+    <form id="upload-form" class="upload-card">
+      <input id="upload-package-id" type="text" maxlength="64" placeholder="Package ID (optional)" />
+      <label class="upload-drop" id="upload-drop" for="upload-files">
+        <span id="upload-drop-text">Choose package folder…</span>
+      </label>
+      <input id="upload-files" type="file" multiple webkitdirectory directory hidden />
+      <button id="upload-submit" type="submit" disabled>Upload</button>
+      <p class="upload-hint">
+        The folder should contain <code>Project_Metadata.json</code> (required), an optional
+        <code>Document_Index.csv</code>, and its PDFs. It loads into the shared local review
+        server, so the rules UI at
+        <a href="http://localhost:8081" style="color: var(--accent)">localhost:8081</a> can
+        review it immediately. The hosted Gemini agent in the chat bubble reads its own
+        Google-side data — to hand it a document directly, attach the PDF with the chat's
+        paperclip instead.
+      </p>
+      <p id="upload-status" class="upload-status" hidden></p>
+    </form>
+
+    <p class="note">
+      <strong>Decision support only.</strong> DORA flags provisions for human review.
+      It does not issue approval, award, or legal determinations.
+      The deterministic rule-pipeline UI runs separately at
+      <a href="http://localhost:8081" style="color: var(--accent)">localhost:8081</a>.
+    </p>
+  </main>
+
+  <footer>DelDOT Orchestrated Review Assistant · hosted agent via Google Chat Messenger</footer>
+
+  <!-- Chat Messenger wiring: token broker auth, no credentials in this page -->
+  <script>
+    window.addEventListener("chat-messenger-loaded", () => {
+      chatSdk.registerContext(
+        chatSdk.prebuilts.ces.createContext({
+          deploymentName: "projects/822735995797/locations/us/apps/a9c38b91-99b9-429d-a249-0154dba7969a/deployments/04efd120-46bb-401f-a9d9-5842a211e4e4",
+          tokenBroker: {
+            enableTokenBroker: true,
+            enableRecaptcha: false
+          }
+        }),
+      );
+    });
+  </script>
+
+  <chat-messenger url-allowlist="*">
+    <chat-messenger-container
+      chat-title="DORA (DelDOT Orchestrator Review Assistant)"
+      chat-title-icon="https://gstatic.com/dialogflow-console/common/assets/ccai-favicons/conversational_agents.png"
+      enable-file-upload
+      enable-audio-input
+    >
+      <chat-reset-session-button
+        slot="titlebar-actions"
+        title-text="Start new chat"
+      ></chat-reset-session-button>
+      <chat-toggle-dialog-button
+        slot="titlebar-actions"
+        title-text-expanded="Collapse"
+        title-text-collapsed="Expand"
+      ></chat-toggle-dialog-button>
+      <chat-messenger-close-button
+        slot="titlebar-actions"
+        title-text="Close"
+      ></chat-messenger-close-button>
+    </chat-messenger-container>
+  </chat-messenger>
+
+  <script>
+    // Package upload — same endpoint the rules UI uses; uploads/ is shared
+    // between both local instances.
+    (() => {
+      const form = document.getElementById("upload-form");
+      const idInput = document.getElementById("upload-package-id");
+      const filesInput = document.getElementById("upload-files");
+      const drop = document.getElementById("upload-drop");
+      const dropText = document.getElementById("upload-drop-text");
+      const submitBtn = document.getElementById("upload-submit");
+      const statusEl = document.getElementById("upload-status");
+
+      function setStatus(text, kind) {
+        statusEl.hidden = !text;
+        statusEl.textContent = text;
+        statusEl.className = `upload-status${kind ? ` ${kind}` : ""}`;
+      }
+
+      function describe(fileList) {
+        if (!fileList || fileList.length === 0) {
+          dropText.textContent = "Choose package folder…";
+          submitBtn.disabled = true;
+          return;
+        }
+        const files = Array.from(fileList);
+        const pdfCount = files.filter((f) => f.name.toLowerCase().endsWith(".pdf")).length;
+        const hasMetadata = files.some((f) => f.name === "Project_Metadata.json");
+        const folderName = files[0].webkitRelativePath
+          ? files[0].webkitRelativePath.split("/")[0]
+          : null;
+        const label = folderName || `${files.length} files`;
+        dropText.textContent = hasMetadata
+          ? `${label} — ${pdfCount} PDF${pdfCount === 1 ? "" : "s"}`
+          : `${label} — ⚠ no Project_Metadata.json found`;
+        if (folderName && !idInput.value.trim()) {
+          idInput.value = folderName.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 64);
+        }
+        submitBtn.disabled = false;
+      }
+
+      filesInput.addEventListener("change", () => describe(filesInput.files));
+
+      ["dragover", "dragenter"].forEach((evt) =>
+        drop.addEventListener(evt, (e) => {
+          e.preventDefault();
+          drop.classList.add("dragover");
+        })
+      );
+      ["dragleave", "dragend"].forEach((evt) =>
+        drop.addEventListener(evt, () => drop.classList.remove("dragover"))
+      );
+      drop.addEventListener("drop", (e) => {
+        e.preventDefault();
+        drop.classList.remove("dragover");
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          filesInput.files = e.dataTransfer.files;
+          describe(filesInput.files);
+        }
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fileList = filesInput.files;
+        if (!fileList || fileList.length === 0) return;
+
+        submitBtn.disabled = true;
+        setStatus("Uploading and parsing…", "busy");
+
+        const data = new FormData();
+        data.append("package_id", idInput.value.trim());
+        Array.from(fileList).forEach((f) => data.append("files", f));
+
+        try {
+          const resp = await fetch("/api/packages/upload", { method: "POST", body: data });
+          const out = await resp.json();
+          if (!resp.ok) {
+            setStatus(out.detail || "Upload failed.", "bad");
+            submitBtn.disabled = false;
+            return;
+          }
+          setStatus(
+            `Loaded ${out.package_id} — ${out.documents.length} document(s), ` +
+              `${out.clauses_extracted} clause(s). Reviewable now at localhost:8081.`,
+            "ok"
+          );
+          form.reset();
+          describe(null);
+        } catch (err) {
+          setStatus(`Network error: ${err}`, "bad");
+          submitBtn.disabled = false;
+        }
+      });
+    })();
+
+    // Click-to-copy for the sample questions (the widget has its own input).
+    document.getElementById("chips").addEventListener("click", async (e) => {
+      const chip = e.target.closest(".chip");
+      if (!chip) return;
+      const original = chip.textContent;
+      try {
+        await navigator.clipboard.writeText(original);
+        chip.textContent = "Copied — paste it into the chat";
+        chip.classList.add("copied");
+        setTimeout(() => {
+          chip.textContent = original;
+          chip.classList.remove("copied");
+        }, 1400);
+      } catch {
+        /* clipboard unavailable (non-secure context) — leave the text visible */
+      }
+    });
+  </script>
+</body>
+</html>

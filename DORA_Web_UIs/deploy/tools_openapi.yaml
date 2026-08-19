@@ -1,0 +1,280 @@
+openapi: 3.0.3
+
+info:
+  title: DelDOT Contract Review — deterministic tools
+  version: "1.0.0"
+  description: >
+    Three deterministic operations the reviewing agent must not infer.
+    Project metadata drives applicability, precedence selects the one governing
+    clause, and evidence verification proves a quoted span is verbatim. Each is a
+    stated rule executed in code, so the answer is exact and identical across runs.
+
+servers:
+  - url: https://REPLACE-ME.run.app
+    description: Cloud Run service wrapping the crf pipeline modules
+
+paths:
+
+  # ---------------------------------------------------------------------------
+  /project-metadata:
+    post:
+      operationId: get_project_metadata
+      summary: Read a package's project metadata exactly
+      description: >
+        Returns the verbatim Project_Metadata.json for one contract package —
+        federal aid status, Buy America/BABA applicability, contract value,
+        issued addenda, and the claim / delay / changed-work event flags.
+        Call this FIRST, before reading any contract text, to decide whether a
+        requirement applies to this project. These fields are exact booleans, not
+        text to be interpreted: a requirement that is out of scope under metadata
+        cannot produce a finding no matter what the documents say. Never infer
+        these values from clause text or from the project name.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [package_id]
+              properties:
+                package_id:
+                  type: string
+                  description: Package identifier, e.g. DEV-HARBOR-CROSSING or VAL-OAK-HOLLOW.
+                  example: DEV-HARBOR-CROSSING
+      responses:
+        "200":
+          description: Metadata for the requested package.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMetadata"
+        "404":
+          description: No package with that identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ---------------------------------------------------------------------------
+  /governing-document:
+    post:
+      operationId: resolve_governing_document
+      summary: Resolve which single clause governs a requirement
+      description: >
+        Returns the ONE clause that governs a given requirement in a given
+        package, after applying supersession and order of precedence, plus the
+        list of clauses it supersedes and the basis for the decision.
+        Call this BEFORE testing any clause against its reference invariant.
+        An Addendum carrying "Revision to <Requirement_Name>" followed by
+        "REPLACEMENT TEXT:" supersedes the base provision, and the latest ordinal
+        wins (A then B then C); otherwise the DelDOT 105.6 ladder applies —
+        General Description, General Notices, Plans, Special Provisions, Standard
+        Construction Details, Standard Specifications, Electronic Design Data
+        Files. Judge only the returned governing clause. Superseded text is never
+        a finding: flagging it reports a problem the owner has already fixed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [package_id, requirement_id]
+              properties:
+                package_id:
+                  type: string
+                  example: DEV-HARBOR-CROSSING
+                requirement_id:
+                  type: string
+                  description: Reference checklist requirement ID, CC-01 through CC-18.
+                  example: CC-04
+      responses:
+        "200":
+          description: The governing clause and everything it supersedes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrecedenceResult"
+        "404":
+          description: Unknown package or requirement ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ---------------------------------------------------------------------------
+  /verify-evidence:
+    post:
+      operationId: verify_evidence_verbatim
+      summary: Check that a quoted span really appears in the cited document
+      description: >
+        Returns whether a candidate evidence span appears verbatim in the named
+        document of the named package, comparing after whitespace and case
+        normalisation only. Call this on every draft_evidence value BEFORE
+        emitting a row. If verbatim is false the quote is not evidence — do not
+        paraphrase it into place and do not soften it. Retrieve the clause again,
+        quote a span that actually exists, or lower confidence and escalate the
+        row for human review.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [package_id, file_name, span]
+              properties:
+                package_id:
+                  type: string
+                  example: DEV-HARBOR-CROSSING
+                file_name:
+                  type: string
+                  description: The document the span is cited to.
+                  example: Addendum_B.pdf
+                span:
+                  type: string
+                  description: The exact text proposed as draft_evidence.
+                  example: >-
+                    Required bond coverage shall equal one hundred percent (100%)
+                    of the contract price, subject to the referenced surety conditions.
+      responses:
+        "200":
+          description: Verification result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceCheck"
+        "404":
+          description: Unknown package or file name.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+
+    ProjectMetadata:
+      type: object
+      properties:
+        package_id:
+          type: string
+          example: DEV-HARBOR-CROSSING
+        project_title:
+          type: string
+          example: Harbor Crossing Pavement Rehabilitation
+        federal_aid:
+          type: boolean
+          description: Drives CC-01 (FHWA-1273 physical incorporation).
+        buy_america_baba_applicable:
+          type: boolean
+          description: Drives CC-09.
+        subcontracting_planned:
+          type: boolean
+          description: Drives CC-14.
+        claim_event:
+          type: boolean
+          description: Drives CC-15.
+        delay_event:
+          type: boolean
+          description: Drives CC-16.
+        changed_work_event:
+          type: boolean
+          description: Drives CC-18.
+        issued_addenda:
+          type: array
+          description: Addenda listed in metadata. An empty list drives CC-08 out of scope.
+          items:
+            type: string
+        assumed_contract_value:
+          type: integer
+          nullable: true
+        document_files:
+          type: array
+          description: Every PDF present in the package, for reference.
+          items:
+            type: string
+
+    Clause:
+      type: object
+      properties:
+        file_name:
+          type: string
+          example: Addendum_B.pdf
+        doc_type:
+          type: string
+          example: Addendum B
+        heading:
+          type: string
+          example: Performance and payment bonds
+        page:
+          type: integer
+          example: 1
+        location:
+          type: string
+          description: Ready-to-use draft_location value.
+          example: Addendum_B.pdf > Performance and payment bonds (page 1)
+        text:
+          type: string
+          description: The full clause text. Quote evidence from this string only.
+        is_replacement:
+          type: boolean
+          description: True when the clause carries addendum REPLACEMENT TEXT.
+
+    PrecedenceResult:
+      type: object
+      properties:
+        package_id:
+          type: string
+        requirement_id:
+          type: string
+        found:
+          type: boolean
+          description: False when no clause addressing this requirement exists in the package.
+        governing:
+          allOf:
+            - $ref: "#/components/schemas/Clause"
+          nullable: true
+          description: The single clause to judge. Null when found is false.
+        governing_document:
+          type: string
+          description: Ready-to-use governing_document value.
+          example: Addendum B (Addendum_B.pdf)
+        superseded:
+          type: array
+          description: Clauses outranked by the governing one. Never judge these.
+          items:
+            $ref: "#/components/schemas/Clause"
+        resolution_basis:
+          type: string
+          enum: [addendum_replacement, deldot_105_6, single_occurrence, not_located]
+        resolution_note:
+          type: string
+          description: One sentence stating why this document governs.
+
+    EvidenceCheck:
+      type: object
+      properties:
+        verbatim:
+          type: boolean
+          description: True only when the span occurs in the document after whitespace and case normalisation.
+        package_id:
+          type: string
+        file_name:
+          type: string
+        matched_heading:
+          type: string
+          nullable: true
+          description: The clause heading the span was found under, when verbatim is true.
+        matched_page:
+          type: integer
+          nullable: true
+        message:
+          type: string
+          description: What to do next when verbatim is false.
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
