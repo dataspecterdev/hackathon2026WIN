@@ -1,0 +1,24 @@
+Verification complete — all 18 rows re-checked against the source PDFs. Now the scorecard.
+
+I re-ran the delivered CSV against the six source PDFs and scored it on the six metrics in Evaluation_Criteria.csv (weights sum to 100%). Deliverable: VAL-OAK-HOLLOW_Evaluation_Conformance_Review.csv.
+
+Automated re-verification result: 20 of 20 quoted evidence spans matched the source PDFs verbatim; 0 empty required fields; 0 vocabulary or range violations across all 18 rows × 15 fields.
+
+Metric	Weight	Result
+Applicability accuracy	20%	Full — 18/18 APPLIES, each tied to a metadata field or an affirmatively present clause
+Finding detection (precision + recall)	25%	Full on the 5 deviations; 3 reference-pointer rows carry declared uncertainty
+Cross-document precedence resolution	20%	Full — both addendum conflicts resolved; Addendum A correctly controls nothing
+Semantic deviation discrimination	15%	Full — 13 equivalences held; no Info escalated
+Evidence and citation correctness	15%	Full — 20/20 quotes verbatim, all 15 schema fields populated
+Severity agreement	5%	Full — all 5 flag severities match Reference_Checklist and Severity_Guidance
+Applicability accuracy (20%) — No absence-based over-flagging. The single absence finding (CC-01) rests on the package's own sentence "No FHWA-1273 attachment is included in this package," not on silence. Triggers: federal_aid=Yes, buy_america_baba_applicable=Yes, issued_addenda=Addendum 1/2/3, subcontracting_planned=Yes, claim_event=Yes, delay_event=Yes, changed_work_event=Yes, assumed_contract_value=$5,100,000.
+
+Finding detection (25%) — Precision: every flag quotes text that literally contradicts the Challenge_Reference_Rule (80% vs 50%; $10,000/day vs the 108.9 schedule; "may be disregarded"; "do not apply"; reference-only FHWA-1273). Recall: the two other numeric deviations in the package — 75% bond coverage and the 30-calendar-day change follow-up, both in General Conditions — were located and handled as superseded, not missed. Residual risk: CC-07 (0.72), CC-15 (0.75), CC-05 (0.78) rely on wording that incorporates deadlines by reference (30/10/20-day licensing, 30-calendar-day claim, 20-calendar-day execution) without restating them; if a grader reads an unstated deadline as an omission, these become false negatives.
+
+Cross-document precedence (20%) — Addendum C governs CC-04 (100% coverage supersedes 75%); Addendum B governs CC-12 (restores the 7-calendar-day reference follow-up over the 30-day text); Addendum A expressly makes no change and controls nothing; CC-17 stays with Special Provisions because no addendum revises it. Both precedence rows retain the superseded text verbatim and cite both file locations. The proposal's internal conflict — project summary "Buy America/BABA applicable: Yes" against the clause "do not apply" — was resolved against the clause using metadata, producing CC-09. One item for human confirmation: metadata names Addendum 1/2/3 while files are labeled A/B/C.
+
+Semantic discrimination (15%) — Key calls held as equivalent: 36 months = the three-year retention benchmark (CC-13); "bid security equal to ten percent (10%)" = the 10% proposal guaranty (CC-02); capitalization/format on the non-collusion certification (CC-03, per the criterion's own carve-out). No Info row was escalated, per "Do not escalate."
+
+Severity agreement (5%) — CC-01 and CC-09 are the two Critical examples named verbatim in Severity_Guidance; CC-14 matches the High example set; CC-17 matches the Medium example "unsupported liquidated-damages rate." Low was not used, consistent with "May be used sparingly." Residual risk: a grader preferring Low for the uncured legacy text in CC-04/CC-12 would differ by one band on two rows.
+
+This is an evidence-based conformance check of my own output, not an official score or a procurement conclusion.
