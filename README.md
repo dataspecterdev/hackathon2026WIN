@@ -1,4 +1,4 @@
-# Case Study: DORA — DelDOT Orchestrated Review Assistant
+# Case Study: DORA — DelDOT Orchestrated Review Assistant OFFICIAL 2026 HENNOVATE THE STATE WINNER FOR DEPTH IN TECHNICALITY
 
 ## Overview
 
